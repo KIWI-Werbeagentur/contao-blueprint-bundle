@@ -1,0 +1,11 @@
+<form action="{{ href }}" method="GET">
+    <input type="hidden" name="do" value="blueprint_article"/>
+    <input type="hidden" name="key" value="blueprintpreview"/>
+    <select name="layout">
+        {% for layout in layouts %}
+            <option value="{{  layout.id  }}">{{ layout.getRelated('pid').name }} | {{  layout.name  }}</option>
+        {% endfor %}
+    </select>
+    <input type="hidden" name="rt" value="{{ csrf_token('') }}"/>
+    <input type="submit" formtarget="_blank" title="{{ title }}" {{ attributes }} value="{{ label }}">
+</form>

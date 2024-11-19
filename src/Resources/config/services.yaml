@@ -1,0 +1,15 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+  Kiwi\Contao\Blueprints\DataContainer\Article:
+    public: true
+  Kiwi\Contao\Blueprints\DataContainer\BlueprintArticleCategory:
+    public: true
+  Kiwi\Contao\Blueprints\DataContainer\Content:
+    public: true
+  Kiwi\Contao\Blueprints\Blueprint:
+    public: true
+  Kiwi\Contao\Blueprints\EventListener\CompileArticleListener: ~
+  Kiwi\Contao\Blueprints\EventListener\GetArticlesListener: ~
+  Kiwi\Contao\Blueprints\EventListener\GetFrontendModuleListener: ~

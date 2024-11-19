@@ -1,0 +1,55 @@
+.add_blueprint {
+    position: relative;
+    width: 16px;
+    display: inline-block;
+}
+
+.add_blueprint .item__wrapper {
+    padding: 7px 15px;
+    margin-bottom: 2px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+    transition: .3s;
+    cursor: default;
+}
+
+.add_blueprint .item__wrapper:hover {
+    background: var(--table-header);
+}
+
+.add_blueprint .item {
+    display: block;
+    width: 100%;
+}
+
+.add_blueprint .item__sub {
+    position: absolute;
+    z-index: 999;
+}
+
+.add_blueprint .item__sub__wrapper{
+    padding-top: 5px;
+}
+
+.add_blueprint .add_blueprint__item__sub {
+    left: 0;
+    transform: translateX(-100%);
+    margin-top: -7px;
+}
+
+.add_blueprint .item__sub {
+    opacity: 0;
+    pointer-events: none;
+    right: 0;
+    min-width: 100%;
+}
+
+.add_blueprint .item__sub {
+    box-shadow: 0 0 15px #00000038;
+}
+
+.add_blueprint .item__wrapper:hover > .item__sub,
+.add_blueprint.item__wrapper:hover > * > .item__sub {
+    opacity: 1;
+    pointer-events: all;
+}
