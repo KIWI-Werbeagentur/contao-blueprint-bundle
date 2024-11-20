@@ -2,6 +2,7 @@
 
 namespace Kiwi\Contao\Blueprints;
 
+use Contao\System;
 use Kiwi\Contao\Blueprints\Drivers\DC_Table_Blueprint;
 use Kiwi\Contao\Blueprints\Model\BlueprintArticleModel;
 use Contao\CoreBundle\Exception\ResponseException;
@@ -37,6 +38,9 @@ class Blueprint
      * */
     public function insert(): void
     {
+        $container = System::getContainer();
+        $objSession = $container->get('request_stack')->getSession();
+
         $intBlueprint = Input::get('id');
         $objBlueprint = BlueprintArticleModel::findById($intBlueprint);
 

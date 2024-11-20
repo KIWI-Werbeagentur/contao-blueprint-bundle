@@ -1,5 +1,5 @@
-<div class="item__wrapper add_blueprint" {{ attributes }}>
-    <span class="item" title="{{ title }}">{% if icon %}<img src="{{ icon }}"/>{% endif %}</span>
+<div class="item__wrapper add_blueprint">
+    <span class="item">{% if icon %}<img src="{{ icon }}"/>{% endif %}</span>
     <ul class="item__sub__wrapper">
         <div class="item__sub add_blueprint__category__sub">
             {% for category in categories %}
@@ -10,7 +10,7 @@
                         <ul class="item__sub add_blueprint__item__sub">
                             {% for blueprint in category.blueprints %}
                                 <li class="item__wrapper add_blueprint__item">
-                                    <a href="{{ href }}&do=blueprint_article&mode=1&mode=1&key=blueprintinsert&id={{ blueprint.id }}&pid={{ record.id }}"
+                                    <a href="{{ href }}&do=blueprint_article&mode=1&mode={{ mode }}&key=blueprintinsert&id={{ blueprint.id }}&pid={{ record.id }}"
                                        class="item">{{ blueprint.title }}</a>
                                 </li>
                             {% endfor %}

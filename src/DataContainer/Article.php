@@ -2,6 +2,10 @@
 
 namespace Kiwi\Contao\Blueprints\DataContainer;
 
+use Contao\CoreBundle\Security\ContaoCorePermissions;
+use Contao\CoreBundle\Security\DataContainer\CreateAction;
+use Contao\Image;
+use Contao\StringUtil;
 use Kiwi\Contao\Blueprints\Model\BlueprintArticleCategoryModel;
 use Kiwi\Contao\Blueprints\Model\BlueprintArticleModel;
 use Contao\Backend;
@@ -14,55 +18,88 @@ use Contao\System;
 class Article
 {
     /*
-     * Create Blueprint Insert Button at Article
+     * Initialize Pasting Mode for Blueprints
      * */
-    #[AsCallback(table: 'tl_article', target: 'list:operations.blueprint.button')]
-    public function blueprintArticleOpButton(array $arrData, string|null $strHref, string|null $strLabel, string|null $strTitle, string|null $strIcon, string|null $strAttributes, string|null $strTable, array $arrRootIds, array|null $arrChildIds, bool $isRef, string|null $strPrev, string|null $strNext, \Contao\DataContainer $objDc)
+    #[AsCallback(table: 'tl_article', target: 'config.onload')]
+    public function initPasting()
     {
         if (Input::get('key') == 'blueprintinsert') {
-            $objBlueprintArticleCategoryCollection = BlueprintArticleCategoryModel::findBy('published', 1, ['order' => 'sorting']);
+            $objSession = System::getContainer()->get('request_stack')->getSession();
+            $arrClipboard = $objSession->get('CLIPBOARD');
 
-            // Add Child entries with Blueprints
-            foreach ($objBlueprintArticleCategoryCollection as $objBlueprintArticleCategory) {
-                $objBlueprintArticleCollection = BlueprintArticleModel::findPublishedByPidAndTable($objBlueprintArticleCategory->id, ['order' => 'sorting']);
+            $arrClipboard['tl_article'] = [
+                'id' => 0,
+                'mode' => Input::get('mode')
+            ];
 
-                if (!$objBlueprintArticleCollection) {
-                    $objBlueprintArticleCategory->blueprints = [];
-                    continue;
-                }
-
-                $objBlueprintArticleCategory->blueprints = $objBlueprintArticleCollection;
-            }
-
-            $v = $GLOBALS['TL_DCA'][$strTable]['list']['operations']['blueprint'];
-
-            if (!empty($v['route']))
-            {
-                $href = System::getContainer()->get('router')->generate($v['route']);
-            }
-            else
-            {
-                $href = Backend::addToUrl($v['href'] ?? '');
-            }
-
-            return System::getContainer()->get('twig')->render('@Contao/backend/blueprintinsert.html.twig', [
-                'categories' => $objBlueprintArticleCategoryCollection,
-                'record' => $arrData,
-                'href' => $href,
-                'label' => $strLabel,
-                'title' => $strTitle,
-                'icon' => $strIcon,
-                'attributes' => $strAttributes,
-                'table' => $strTable,
-            ]);
+            $objSession->set('CLIPBOARD', $arrClipboard);
         }
-        return "";
+    }
+
+    /*
+     * Alter Pasting Button
+    */
+    //#[AsCallback(table: 'tl_article', target: 'list.sorting.paste_button')]
+    public function blueprintArticlePasteButton(\Contao\DataContainer $objDc, array $arrData, string|null $strTable, bool $isCircular, array $arrClipboard, array|null $arrChildren, string|null $strPrev, string|null $strNext)
+    {
+        $objBlueprintArticleCategoryCollection = BlueprintArticleCategoryModel::findBy('published', 1, ['order' => 'sorting']);
+
+        // Add Child entries with Blueprints
+        foreach ($objBlueprintArticleCategoryCollection as $objBlueprintArticleCategory) {
+            $objBlueprintArticleCollection = BlueprintArticleModel::findPublishedByPidAndTable($objBlueprintArticleCategory->id, ['order' => 'sorting']);
+
+            if (!$objBlueprintArticleCollection) {
+                $objBlueprintArticleCategory->blueprints = [];
+                continue;
+            }
+
+            $objBlueprintArticleCategory->blueprints = $objBlueprintArticleCollection;
+        }
+
+        $href = Backend::addToUrl('');
+
+        return System::getContainer()->get('twig')->render('@Contao/backend/blueprintinsert.html.twig', [
+            'categories' => $objBlueprintArticleCategoryCollection,
+            'record' => $arrData,
+            'href' => $href,
+            'icon' => $strTable == 'tl_article' ? "bundles/kiwiblueprints/pasteinto.svg" : "bundles/kiwiblueprints/pastenextto.svg",
+            'table' => $strTable,
+            'mode' => $strTable == 'tl_article' ? 1 : 2
+        ]);
+
+        $security = System::getContainer()->get('security.helper');
+
+        $id = $arrData['id'];
+
+        $labelPasteAfter = $GLOBALS['TL_LANG'][$strTable]['pasteafter'] ?? $GLOBALS['TL_LANG']['DCA']['pasteafter'];
+        $imagePasteAfter = Image::getHtml('pasteafter.svg', \sprintf($labelPasteAfter[1], $id));
+
+        $labelPasteInto = $GLOBALS['TL_LANG'][$strTable]['pasteinto'] ?? $GLOBALS['TL_LANG']['DCA']['pasteinto'];
+        $imagePasteInto = Image::getHtml('pasteinto.svg', \sprintf($labelPasteInto[1], $id));
+
+        if ($strTable == "tl_article") {
+            if (($arrClipboard['mode'] == 'cut' && ($isCircular || $arrClipboard['id'] == $id)) || ($arrClipboard['mode'] == 'cutAll' && ($isCircular || \in_array($id, $arrClipboard['id']))) || !$this->canPasteClipboard($arrClipboard, ['pid' => $currentRecord['pid'], 'sorting' => $currentRecord['sorting'] + 1])) {
+                return Image::getHtml('pasteafter--disabled.svg') . ' ';
+            } else {
+                return '<a href="' . Backend::addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=1&amp;pid=' . $id . (!\is_array($arrClipboard['id']) ? '&amp;id=' . $arrClipboard['id'] : '')) . '" title="' . StringUtil::specialchars(\sprintf($labelPasteAfter[1], $id)) . '" data-action="contao--scroll-offset#store">' . $imagePasteAfter . '</a> ';
+            }
+        } else {
+            if (!$security->isGranted(ContaoCorePermissions::DC_PREFIX . 'tl_article', new CreateAction('tl_article', ['pid' => $arrData['id'], 'sorting' => $arrData['sorting']]))) {
+                return Image::getHtml('pasteinto--disabled.svg') . ' ';
+            } else {
+                System::loadLanguageFile('tl_article');
+                System::loadLanguageFile('default');
+                $labelPasteInto = $GLOBALS['TL_LANG']['tl_article']['pasteinto'] ?? $GLOBALS['TL_LANG']['DCA']['pasteinto'];
+                $imagePasteInto = Image::getHtml('pasteinto.svg', $labelPasteInto[0] ?? "");
+                return '<a href="' . Backend::addToUrl('act=' . $arrClipboard['mode'] . '&amp;mode=2&amp;pid=0' . (!\is_array($arrClipboard['id']) ? '&amp;id=' . $arrClipboard['id'] : '')) . '" title="' . StringUtil::specialchars($labelPasteInto[0] ?? "") . '" data-action="contao--scroll-offset#store">' . $imagePasteInto . '</a> ';
+            }
+        }
     }
 
     /*
      * Save Blueprint Category Alias
      * */
-    #[AsCallback(table: 'tl_article', target: 'fields.alias.save')]
+    //#[AsCallback(table: 'tl_article', target: 'fields.alias.save')]
     public function generateAlias($varValue, DataContainer $dc)
     {
         $aliasExists = static function (string $alias) use ($dc): bool {
