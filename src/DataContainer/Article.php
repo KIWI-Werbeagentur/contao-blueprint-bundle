@@ -5,6 +5,8 @@ namespace Kiwi\Contao\Blueprints\DataContainer;
 use Contao\CoreBundle\Security\ContaoCorePermissions;
 use Contao\CoreBundle\Security\DataContainer\CreateAction;
 use Contao\Image;
+use Contao\LayoutModel;
+use Contao\PageModel;
 use Contao\StringUtil;
 use Kiwi\Contao\Blueprints\Model\BlueprintArticleCategoryModel;
 use Kiwi\Contao\Blueprints\Model\BlueprintArticleModel;
@@ -19,29 +21,46 @@ class Article
 {
     /*
      * Initialize Pasting Mode for Blueprints
+     * Add Preview
      * */
-    #[AsCallback(table: 'tl_article', target: 'config.onload')]
     public function initPasting()
     {
-        if (Input::get('key') == 'blueprintinsert') {
+        if (Input::get('key') == 'blueprint_article_insert') {
+            // paste button
             $objSession = System::getContainer()->get('request_stack')->getSession();
             $arrClipboard = $objSession->get('CLIPBOARD');
 
             $arrClipboard['tl_article'] = [
                 'id' => 0,
-                'mode' => Input::get('mode')
+                'mode' => 'create'
             ];
 
             $objSession->set('CLIPBOARD', $arrClipboard);
+
+            // preview
+            $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/kiwiblueprints/blueprint_insert.js';
+            $objLayoutCollection = LayoutModel::findAll();
+            $arrIFrames = [];
+            foreach ($objLayoutCollection as $objLayout){
+                $objIFrame = new \stdClass();
+                $objIFrame->url = "/contao?do=blueprint_article&key=blueprint_article_preview&layout={$objLayout->id}";
+                $objIFrame->layout = $objLayout->id;
+                $arrIFrames[] = json_encode($objIFrame);
+            }
+            echo "<script>var arrBlueprintPreviewSrcSet = [" . implode(",", $arrIFrames) . "];</script>";
         }
     }
 
     /*
      * Alter Pasting Button
     */
-    //#[AsCallback(table: 'tl_article', target: 'list.sorting.paste_button')]
-    public function blueprintArticlePasteButton(\Contao\DataContainer $objDc, array $arrData, string|null $strTable, bool $isCircular, array $arrClipboard, array|null $arrChildren, string|null $strPrev, string|null $strNext)
+    public function addBlueprintArticlePasteButton(\Contao\DataContainer $objDc, array $arrData, string|null $strTable, bool $isCircular, array $arrClipboard, array|null $arrChildren, string|null $strPrev, string|null $strNext)
     {
+        $security = System::getContainer()->get('security.helper');
+        if ($strTable!='tl_article' && !$security->isGranted(ContaoCorePermissions::DC_PREFIX . 'tl_article', new CreateAction('tl_article', ['pid' => $arrData['id'], 'sorting' => $arrData['sorting']]))) {
+            return;
+        }
+
         $objBlueprintArticleCategoryCollection = BlueprintArticleCategoryModel::findBy('published', 1, ['order' => 'sorting']);
 
         // Add Child entries with Blueprints
@@ -58,9 +77,10 @@ class Article
 
         $href = Backend::addToUrl('');
 
-        return System::getContainer()->get('twig')->render('@Contao/backend/blueprintinsert.html.twig', [
+        return System::getContainer()->get('twig')->render('@KiwiBlueprints/backend/blueprint_article_insert.html.twig', [
             'categories' => $objBlueprintArticleCategoryCollection,
             'record' => $arrData,
+            'layout' => $arrData['layout'] ?? PageModel::findById($arrData['pid'])->layout,
             'href' => $href,
             'icon' => $strTable == 'tl_article' ? "bundles/kiwiblueprints/pasteinto.svg" : "bundles/kiwiblueprints/pastenextto.svg",
             'table' => $strTable,
@@ -71,7 +91,7 @@ class Article
     /*
      * Save Blueprint Category Alias
      * */
-    //#[AsCallback(table: 'tl_article', target: 'fields.alias.save')]
+    #[AsCallback(table: 'tl_article', target: 'fields.alias.save')]
     public function generateAlias($varValue, DataContainer $dc)
     {
         $aliasExists = static function (string $alias) use ($dc): bool {

@@ -20,7 +20,7 @@ class Blueprint
         global $objPage;
         $objPage = new PageModel();
         $objPage->id = 0;
-        $objPage->type = 'preview';
+        $objPage->type = 'blueprint_article_preview';
         $objPage->title = "Blueprint Preview";
         $objPage->alias = "Preview";
         $objPage->layout = Input::get('layout');
@@ -29,6 +29,9 @@ class Blueprint
         $objPage->language = $GLOBALS['TL_LANGUAGE'];
         $objPage->noSearch = true;
         $objPage->protected = false;
+
+        $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/kiwiblueprints/blueprint_preview.js';
+        $GLOBALS['TL_CSS'][] = 'bundles/kiwiblueprints/blueprint.css';
 
         throw new ResponseException((new PageRegular())->getResponse($objPage));
     }

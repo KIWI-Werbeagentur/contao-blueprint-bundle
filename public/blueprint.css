@@ -1,0 +1,131 @@
+.add_blueprint {
+    position: relative;
+    width: 16px;
+    display: inline-block;
+}
+
+.add_blueprint .item__wrapper {
+    padding: 7px 15px;
+    margin-bottom: 2px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+    transition: .3s;
+    cursor: default;
+}
+
+.add_blueprint .item__wrapper:hover {
+    background: var(--table-header);
+}
+
+.add_blueprint .item {
+    display: block;
+    width: 100%;
+}
+
+.add_blueprint .item__sub {
+    position: absolute;
+    z-index: 999;
+}
+
+.add_blueprint .item__sub__wrapper {
+    padding-top: 5px;
+}
+
+.add_blueprint .add_blueprint__item__sub {
+    left: 0;
+    transform: translateX(-100%);
+    margin-top: -7px;
+}
+
+.add_blueprint .item__sub {
+    opacity: 0;
+    pointer-events: none;
+    right: 0;
+    min-width: 100%;
+}
+
+.add_blueprint .item__sub {
+    box-shadow: 0 0 15px #00000038;
+}
+
+.add_blueprint .item__wrapper:hover > .item__sub,
+.add_blueprint.item__wrapper:hover > * > .item__sub {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.blueprint_article_preview__wrapper {
+    position: sticky;
+    top: 0;
+    min-width: 500px;
+    height: 100vh;
+
+}
+
+.blueprint_article_preview__viewport {
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: relative;
+    background-position: center;
+    z-index: 2;
+}
+
+.blueprint_article_preview__viewport--desktop {
+    background-image: url("imac.png");
+    height: 358px;
+}
+
+.blueprint_article_preview__viewport--tablet {
+    background-image: url("ipad.png");
+    height: 358px;
+}
+
+.blueprint_article_preview__viewport--smartphone {
+    background-image: url("iphone.png");
+    height: 358px;
+}
+
+.blueprint_article_preview__viewport--smartphone .blueprint_article_preview__item {
+    left: 170px;
+    top: 2px;
+    width: 400px;
+    transform: scale(calc(159 / 400));
+    height: 890px;
+    z-index: -1;
+}
+
+.blueprint_article_preview__viewport--tablet .blueprint_article_preview__item {
+    left: 145px;
+    top: 39px;
+    width: 768px;
+    transform: scale(calc(209 / 768));
+    height: 1020px;
+}
+
+.blueprint_article_preview__viewport--desktop .blueprint_article_preview__item {
+    left: 94px;
+    top: 58px;
+    width: 1920px;
+    transform: scale(calc(314 / 1920));
+    height: 1080px;
+}
+
+.blueprint_article_preview__item:not(.--active) {
+/ / opacity: 0;
+}
+
+.blueprint_article_preview__item {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: scale(calc(500 / 1920)) translateY(-50%);
+    transform-origin: left top;
+}
+
+.--blueprint_insert .mod_article.--inactive {
+    display: none;
+}
+
+.--blueprint_insert .sf-toolbar {
+    display: none !important;
+}

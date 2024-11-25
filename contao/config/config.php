@@ -15,9 +15,11 @@ if (System::getContainer()->get('contao.routing.scope_matcher')
 
 $GLOBALS['BE_MOD']['design']['blueprint_article'] = [
     'tables' => ['tl_blueprint_article_category', 'tl_blueprint_article', 'tl_content'],
-    'blueprintpreview' => [Blueprint::class, 'preview'],
-    'blueprintinsert' => [Blueprint::class, 'insert']
+    'blueprint_article_preview' => [Blueprint::class, 'preview'],
+    'blueprint_article_insert' => [Blueprint::class, 'insert']
 ];
 
 $GLOBALS['TL_MODELS']['tl_blueprint_article'] = BlueprintArticleModel::class;
 $GLOBALS['TL_MODELS']['tl_blueprint_article_category'] = BlueprintArticleCategoryModel::class;
+
+$GLOBALS['TL_PERMISSIONS'][] = 'blueprint.article';

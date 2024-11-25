@@ -14,13 +14,16 @@ class GetArticlesListener
      * */
     public function __invoke(int $pageId, string $column): string|null
     {
+        dump(123);
         global $objPage;
-        if ($objPage->type == 'preview') {
+        if ($objPage->type == 'blueprint_article_preview') {
             $objBlueprintArticleCollection = BlueprintArticleModel::findAll();
 
             $arrBlueprintArticles = [];
-            foreach ($objBlueprintArticleCollection as $objBlueprintArticle)
+            foreach ($objBlueprintArticleCollection as $objBlueprintArticle) {
+                $objBlueprintArticle->cssID = serialize([$objBlueprintArticle->alias]);
                 $arrBlueprintArticles[] = (new BlueprintArticleController($objBlueprintArticle))->generate();
+            }
 
             return implode("", $arrBlueprintArticles);
         }

@@ -1,6 +1,6 @@
 <form action="{{ href }}" method="GET">
     <input type="hidden" name="do" value="blueprint_article"/>
-    <input type="hidden" name="key" value="blueprintpreview"/>
+    <input type="hidden" name="key" value="blueprint_article_preview"/>
     <select name="layout">
         {% for layout in layouts %}
             <option value="{{  layout.id  }}">{{ layout.getRelated('pid').name }} | {{  layout.name  }}</option>

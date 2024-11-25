@@ -15,7 +15,7 @@ class Content
     #[AsCallback(table: 'tl_content', target: 'config.oncopy')]
     public function onCopyListener($intID, DataContainer $dc)
     {
-        if (Input::get('key') == 'blueprintinsert') {
+        if (Input::get('key') == 'blueprint_article_insert') {
             $objContent = ContentModel::findById($intID);
             $objContent->ptable = "tl_article";
             $objContent->save();

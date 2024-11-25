@@ -2,6 +2,7 @@
 
 namespace Kiwi\Contao\Blueprints\EventListener;
 
+use Contao\System;
 use Kiwi\Contao\Blueprints\Controller\FrontendModule\BlueprintArticleController;
 use Contao\ContentModel;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsHook;
@@ -16,6 +17,7 @@ class CompileArticleListener
     {
         if ($objArticleController instanceof BlueprintArticleController) {
             $arrElements = [];
+
             $objCte = ContentModel::findPublishedByPidAndTable($objArticleController->id, 'tl_blueprint_article');
 
             if ($objCte !== null) {

@@ -2,6 +2,8 @@ services:
   _defaults:
     autowire: true
     autoconfigure: true
+  Kiwi\Contao\Blueprints\Controller\BlueprintPreviewController:
+    public: true
   Kiwi\Contao\Blueprints\DataContainer\Article:
     public: true
   Kiwi\Contao\Blueprints\DataContainer\BlueprintArticleCategory:
