@@ -14,10 +14,10 @@ class GetArticlesListener
      * */
     public function __invoke(int $pageId, string $column): string|null
     {
-        dump(123);
         global $objPage;
         if ($objPage->type == 'blueprint_article_preview') {
             $objBlueprintArticleCollection = BlueprintArticleModel::findAll();
+            if(!$objBlueprintArticleCollection) return null;
 
             $arrBlueprintArticles = [];
             foreach ($objBlueprintArticleCollection as $objBlueprintArticle) {

@@ -43,7 +43,7 @@ class Article
             $arrIFrames = [];
             foreach ($objLayoutCollection as $objLayout){
                 $objIFrame = new \stdClass();
-                $objIFrame->url = "/contao?do=blueprint_article&key=blueprint_article_preview&layout={$objLayout->id}";
+                $objIFrame->url = "/preview.php/kiwi/blueprints/article?do=blueprint_article&key=blueprint_article_preview&layout={$objLayout->id}";
                 $objIFrame->layout = $objLayout->id;
                 $arrIFrames[] = json_encode($objIFrame);
             }

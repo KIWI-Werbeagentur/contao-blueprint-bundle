@@ -2,13 +2,14 @@
 
 namespace Kiwi\Contao\Blueprints;
 
+use Contao\LayoutModel;
 use Contao\System;
 use Kiwi\Contao\Blueprints\Drivers\DC_Table_Blueprint;
 use Kiwi\Contao\Blueprints\Model\BlueprintArticleModel;
 use Contao\CoreBundle\Exception\ResponseException;
 use Contao\Input;
-use Contao\PageModel;
 use Contao\PageRegular;
+use Kiwi\Contao\Blueprints\Model\VirtualPageModel;
 
 class Blueprint
 {
@@ -18,12 +19,12 @@ class Blueprint
     public function preview()
     {
         global $objPage;
-        $objPage = new PageModel();
+        $objPage = new VirtualPageModel();
         $objPage->id = 0;
         $objPage->type = 'blueprint_article_preview';
         $objPage->title = "Blueprint Preview";
         $objPage->alias = "Preview";
-        $objPage->layout = Input::get('layout');
+        $objPage->layout = Input::get('layout') ?? LayoutModel::findAll()->first()->id;
         $objPage->includeLayout = Input::get('layout');
         $objPage->layoutId = Input::get('layout');
         $objPage->language = $GLOBALS['TL_LANGUAGE'];
