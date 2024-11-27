@@ -78,6 +78,8 @@
 .viewport--tablet {
     background-image: url("ipad.png");
     height: 358px;
+    margin-top: 30px;
+    margin-bottom: 30px;
 }
 
 .viewport--smartphone {

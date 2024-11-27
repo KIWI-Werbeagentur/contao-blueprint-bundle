@@ -25,30 +25,30 @@ class Article
      * */
     public function initPasting()
     {
-        if (Input::get('key') == 'blueprint_article_insert') {
-            // paste button
-            $objSession = System::getContainer()->get('request_stack')->getSession();
-            $arrClipboard = $objSession->get('CLIPBOARD');
+        // paste button
+        $objSession = System::getContainer()->get('request_stack')->getSession();
+        $arrClipboard = $objSession->get('CLIPBOARD');
 
-            $arrClipboard['tl_article'] = [
-                'id' => 0,
-                'mode' => 'create'
-            ];
+        $arrClipboard['tl_article'] = [
+            'id' => 0,
+            'type' => 'blueprint',
+            'mode' => 'create'
+        ];
 
-            $objSession->set('CLIPBOARD', $arrClipboard);
+        $objSession->set('CLIPBOARD', $arrClipboard);
 
-            // preview
-            $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/kiwiblueprints/blueprint_insert.js';
-            $objLayoutCollection = LayoutModel::findAll();
-            $arrIFrames = [];
-            foreach ($objLayoutCollection as $objLayout){
-                $objIFrame = new \stdClass();
-                $objIFrame->url = "/preview.php/kiwi/blueprints/article?do=blueprint_article&key=blueprint_article_preview&layout={$objLayout->id}";
-                $objIFrame->layout = $objLayout->id;
-                $arrIFrames[] = json_encode($objIFrame);
-            }
-            echo "<script>var arrBlueprintPreviewSrcSet = [" . implode(",", $arrIFrames) . "];</script>";
+        // preview
+        $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/kiwiblueprints/blueprint_insert.js';
+        $objLayoutCollection = LayoutModel::findAll();
+        $arrIFrames = [];
+        foreach ($objLayoutCollection as $objLayout) {
+            $objIFrame = new \stdClass();
+            $objIFrame->url = "/preview.php/kiwi/blueprints/article?do=blueprint_article&key=blueprint_article_preview&layout={$objLayout->id}";
+            $objIFrame->layout = $objLayout->id;
+            $arrIFrames[] = json_encode($objIFrame);
         }
+        echo "<script>var arrBlueprintPreviewSrcSet = [" . implode(",", $arrIFrames) . "];</script>";
+
     }
 
     /*
@@ -57,7 +57,7 @@ class Article
     public function addBlueprintArticlePasteButton(\Contao\DataContainer $objDc, array $arrData, string|null $strTable, bool $isCircular, array $arrClipboard, array|null $arrChildren, string|null $strPrev, string|null $strNext)
     {
         $security = System::getContainer()->get('security.helper');
-        if ($strTable!='tl_article' && !$security->isGranted(ContaoCorePermissions::DC_PREFIX . 'tl_article', new CreateAction('tl_article', ['pid' => $arrData['id'], 'sorting' => $arrData['sorting']]))) {
+        if ($strTable != 'tl_article' && !$security->isGranted(ContaoCorePermissions::DC_PREFIX . 'tl_article', new CreateAction('tl_article', ['pid' => $arrData['id'], 'sorting' => $arrData['sorting']]))) {
             return;
         }
 
