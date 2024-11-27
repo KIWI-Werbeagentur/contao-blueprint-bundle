@@ -80,7 +80,7 @@ class Article
         return System::getContainer()->get('twig')->render('@KiwiBlueprints/backend/blueprint_article_insert.html.twig', [
             'categories' => $objBlueprintArticleCategoryCollection,
             'record' => $arrData,
-            'layout' => $arrData['layout'] ?? PageModel::findById($arrData['pid'])->layout,
+            'layout' => PageModel::findById($arrData['pid'])->loadDetails()->layout,
             'href' => $href,
             'icon' => $strTable == 'tl_article' ? "bundles/kiwiblueprints/pasteinto.svg" : "bundles/kiwiblueprints/pastenextto.svg",
             'table' => $strTable,
