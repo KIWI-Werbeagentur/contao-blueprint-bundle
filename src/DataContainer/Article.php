@@ -25,30 +25,35 @@ class Article
      * */
     public function initPasting()
     {
-        // paste button
         $objSession = System::getContainer()->get('request_stack')->getSession();
         $arrClipboard = $objSession->get('CLIPBOARD');
 
-        $arrClipboard['tl_article'] = [
-            'id' => 0,
-            'type' => 'blueprint',
-            'mode' => 'create'
-        ];
+        if (\Contao\Input::get('key') == 'blueprint_article_insert' || ($arrClipboard['tl_article']['type'] ?? false) == 'blueprint') {
+            // paste button
+            $objSession = System::getContainer()->get('request_stack')->getSession();
+            $arrClipboard = $objSession->get('CLIPBOARD');
 
-        $objSession->set('CLIPBOARD', $arrClipboard);
+            $arrClipboard['tl_article'] = [
+                'id' => 0,
+                'type' => 'blueprint',
+                'mode' => 'create'
+            ];
 
-        // preview
-        $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/kiwiblueprints/blueprint_insert.js';
-        $objLayoutCollection = LayoutModel::findAll();
-        $arrIFrames = [];
-        foreach ($objLayoutCollection as $objLayout) {
-            $objIFrame = new \stdClass();
-            $objIFrame->url = "/preview.php/kiwi/blueprints/article?do=blueprint_article&key=blueprint_article_preview&layout={$objLayout->id}";
-            $objIFrame->layout = $objLayout->id;
-            $arrIFrames[] = json_encode($objIFrame);
+            $objSession->set('CLIPBOARD', $arrClipboard);
+
+            // preview
+            $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/kiwiblueprints/blueprint_insert.js';
+            $objLayoutCollection = LayoutModel::findAll();
+            $arrIFrames = [];
+            foreach ($objLayoutCollection as $objLayout) {
+                $objIFrame = new \stdClass();
+                $objIFrame->url = "/preview.php/kiwi/blueprints/article?do=blueprint_article&key=blueprint_article_preview&layout={$objLayout->id}";
+                $objIFrame->layout = $objLayout->id;
+                $arrIFrames[] = json_encode($objIFrame);
+            }
+            echo "<script>var arrBlueprintPreviewSrcSet = [" . implode(",", $arrIFrames) . "];</script>";
+            $GLOBALS['TL_DCA']['tl_article']['list']['sorting']['paste_button_callback'] = [Article::class, 'addBlueprintArticlePasteButton'];
         }
-        echo "<script>var arrBlueprintPreviewSrcSet = [" . implode(",", $arrIFrames) . "];</script>";
-
     }
 
     /*
