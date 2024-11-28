@@ -1,6 +1,6 @@
 <?php
 
-namespace Kiwi\ContaoBlueprintsBundle\DataContainer;
+namespace Kiwi\Contao\BlueprintsBundle\DataContainer;
 
 use Contao\CoreBundle\Security\ContaoCorePermissions;
 use Contao\CoreBundle\Security\DataContainer\CreateAction;
@@ -8,8 +8,8 @@ use Contao\Image;
 use Contao\LayoutModel;
 use Contao\PageModel;
 use Contao\StringUtil;
-use Kiwi\ContaoBlueprintsBundle\Model\BlueprintArticleCategoryModel;
-use Kiwi\ContaoBlueprintsBundle\Model\BlueprintArticleModel;
+use Kiwi\Contao\BlueprintsBundle\Model\BlueprintArticleCategoryModel;
+use Kiwi\Contao\BlueprintsBundle\Model\BlueprintArticleModel;
 use Contao\Backend;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsCallback;
 use Contao\Database;

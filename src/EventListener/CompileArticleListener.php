@@ -1,9 +1,9 @@
 <?php
 
-namespace Kiwi\ContaoBlueprintsBundle\EventListener;
+namespace Kiwi\Contao\BlueprintsBundle\EventListener;
 
 use Contao\System;
-use Kiwi\ContaoBlueprintsBundle\Controller\FrontendModule\BlueprintArticleController;
+use Kiwi\Contao\BlueprintsBundle\Controller\FrontendModule\BlueprintArticleController;
 use Contao\ContentModel;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsHook;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace Kiwi\ContaoBlueprintsBundle\Drivers;
+namespace Kiwi\Contao\BlueprintsBundle\Drivers;
 
-use Kiwi\ContaoBlueprintsBundle\Model\BlueprintArticleModel;
+use Kiwi\Contao\BlueprintsBundle\Model\BlueprintArticleModel;
 use Contao\DC_Table;
 use Contao\Input;
 

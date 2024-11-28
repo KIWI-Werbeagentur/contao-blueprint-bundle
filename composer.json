@@ -23,10 +23,10 @@
     },
     "autoload": {
         "psr-4" : {
-            "Kiwi\\Contao\\ContaoBlueprintsBundle\\" : "src/"
+            "Kiwi\\ContaoBlueprintsBundle\\" : "src/"
         }
     },
     "extra":{
-        "contao-manager-plugin": "Kiwi\\Contao\\Blueprints\\ContaoManager\\Plugin"
+        "contao-manager-plugin": "Kiwi\\ContaoBlueprintsBundle\\ContaoManager\\Plugin"
     }
 }

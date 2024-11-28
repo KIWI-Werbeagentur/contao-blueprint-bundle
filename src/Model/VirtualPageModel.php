@@ -1,6 +1,6 @@
 <?php
 
-namespace Kiwi\ContaoBlueprintsBundle\Model;
+namespace Kiwi\Contao\BlueprintsBundle\Model;
 
 use Contao\PageModel;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Kiwi\ContaoBlueprintsBundle\Controller;
+namespace Kiwi\Contao\BlueprintsBundle\Controller;
 
 use Contao\System;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +17,7 @@ class BlueprintArticlePreviewController
     {
         $request = System::getContainer()->get('request_stack')->getCurrentRequest();
         if($request->attributes->get('_preview')){
-            return System::getContainer()->get('Kiwi\ContaoBlueprintsBundle\Blueprint')->preview();
+            return System::getContainer()->get('Kiwi\Contao\BlueprintsBundle\Blueprint')->preview();
         }
 
         $message = sprintf('No route found for "%s %s"', $request->getMethod(), $request->getUriForPath($request->getPathInfo()));

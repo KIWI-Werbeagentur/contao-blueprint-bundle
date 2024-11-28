@@ -1,6 +1,6 @@
 <?php
 
-namespace Kiwi\ContaoBlueprintsBundle\EventListener;
+namespace Kiwi\Contao\BlueprintsBundle\EventListener;
 
 use Contao\CoreBundle\DependencyInjection\Attribute\AsHook;
 

@@ -2,16 +2,16 @@ services:
   _defaults:
     autowire: true
     autoconfigure: true
-  Kiwi\ContaoBlueprintsBundle\Controller\BlueprintPreviewController:
+  Kiwi\Contao\BlueprintsBundle\Controller\BlueprintPreviewController:
     public: true
-  Kiwi\ContaoBlueprintsBundle\DataContainer\Article:
+  Kiwi\Contao\BlueprintsBundle\DataContainer\Article:
     public: true
-  Kiwi\ContaoBlueprintsBundle\DataContainer\BlueprintArticleCategory:
+  Kiwi\Contao\BlueprintsBundle\DataContainer\BlueprintArticleCategory:
     public: true
-  Kiwi\ContaoBlueprintsBundle\DataContainer\Content:
+  Kiwi\Contao\BlueprintsBundle\DataContainer\Content:
     public: true
-  Kiwi\ContaoBlueprintsBundle\Blueprint:
+  Kiwi\Contao\BlueprintsBundle\Blueprint:
     public: true
-  Kiwi\ContaoBlueprintsBundle\EventListener\CompileArticleListener: ~
-  Kiwi\ContaoBlueprintsBundle\EventListener\GetArticlesListener: ~
-  Kiwi\ContaoBlueprintsBundle\EventListener\GetFrontendModuleListener: ~
+  Kiwi\Contao\BlueprintsBundle\EventListener\CompileArticleListener: ~
+  Kiwi\Contao\BlueprintsBundle\EventListener\GetArticlesListener: ~
+  Kiwi\Contao\BlueprintsBundle\EventListener\GetFrontendModuleListener: ~

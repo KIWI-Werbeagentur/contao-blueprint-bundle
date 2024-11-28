@@ -1,6 +1,6 @@
 <?php
 
-namespace Kiwi\ContaoBlueprintsBundle\DataContainer;
+namespace Kiwi\Contao\BlueprintsBundle\DataContainer;
 
 use Contao\ContentModel;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsCallback;
