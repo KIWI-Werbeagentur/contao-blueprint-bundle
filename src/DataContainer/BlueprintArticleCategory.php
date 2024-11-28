@@ -17,7 +17,7 @@ class BlueprintArticleCategory extends Backend
     {
         $objLayoutCollection = LayoutModel::findAll();
 
-        return System::getContainer()->get('twig')->render('@KiwiBlueprints/backend/blueprint_article_preview.html.twig', [
+        return System::getContainer()->get('twig')->render('@KiwiBlueprintsBundle/backend/blueprint_article_preview.html.twig', [
             'layouts' => $objLayoutCollection,
             'label' => $strLabel,
             'title' => $strTitle,

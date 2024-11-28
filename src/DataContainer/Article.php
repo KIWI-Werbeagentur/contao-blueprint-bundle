@@ -82,7 +82,7 @@ class Article
 
         $href = Backend::addToUrl('');
 
-        return System::getContainer()->get('twig')->render('@KiwiBlueprints/backend/blueprint_article_insert.html.twig', [
+        return System::getContainer()->get('twig')->render('@KiwiBlueprintsBundle/backend/blueprint_article_insert.html.twig', [
             'categories' => $objBlueprintArticleCategoryCollection,
             'record' => $arrData,
             'layout' => PageModel::findById($arrData['pid'])->loadDetails()->layout,
