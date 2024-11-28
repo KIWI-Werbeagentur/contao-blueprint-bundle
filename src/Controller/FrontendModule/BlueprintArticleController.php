@@ -1,6 +1,6 @@
 <?php
 
-namespace Kiwi\Contao\Blueprints\Controller\FrontendModule;
+namespace Kiwi\ContaoBlueprintsBundle\Controller\FrontendModule;
 
 use Contao\ModuleArticle;
 

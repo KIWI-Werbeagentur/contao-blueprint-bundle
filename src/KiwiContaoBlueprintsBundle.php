@@ -1,10 +1,10 @@
 <?php
 
-namespace Kiwi\Contao\Blueprints;
+namespace Kiwi\ContaoBlueprintsBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class KiwiBlueprintsBundle extends Bundle
+class KiwiContaoBlueprintsBundle extends Bundle
 {
     public function getPath(): string
     {

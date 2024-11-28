@@ -1,9 +1,9 @@
 <?php
 
 use Contao\System;
-use Kiwi\Contao\Blueprints\Blueprint;
-use Kiwi\Contao\Blueprints\Model\BlueprintArticleCategoryModel;
-use Kiwi\Contao\Blueprints\Model\BlueprintArticleModel;
+use Kiwi\ContaoBlueprintsBundle\Blueprint;
+use Kiwi\ContaoBlueprintsBundle\Model\BlueprintArticleCategoryModel;
+use Kiwi\ContaoBlueprintsBundle\Model\BlueprintArticleModel;
 use Symfony\Component\HttpFoundation\Request;
 
 if (System::getContainer()->get('contao.routing.scope_matcher')

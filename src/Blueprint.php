@@ -1,15 +1,15 @@
 <?php
 
-namespace Kiwi\Contao\Blueprints;
+namespace Kiwi\ContaoBlueprintsBundle;
 
 use Contao\LayoutModel;
 use Contao\System;
-use Kiwi\Contao\Blueprints\Drivers\DC_Table_Blueprint;
-use Kiwi\Contao\Blueprints\Model\BlueprintArticleModel;
+use Kiwi\ContaoBlueprintsBundle\Drivers\DC_Table_Blueprint;
+use Kiwi\ContaoBlueprintsBundle\Model\BlueprintArticleModel;
 use Contao\CoreBundle\Exception\ResponseException;
 use Contao\Input;
 use Contao\PageRegular;
-use Kiwi\Contao\Blueprints\Model\VirtualPageModel;
+use Kiwi\ContaoBlueprintsBundle\Model\VirtualPageModel;
 
 class Blueprint
 {

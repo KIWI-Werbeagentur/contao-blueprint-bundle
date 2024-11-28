@@ -2,7 +2,7 @@
 
 use Contao\DataContainer;
 use Contao\DC_Table;
-use Kiwi\Contao\Blueprints\DataContainer\BlueprintArticleCategory;
+use Kiwi\ContaoBlueprintsBundle\DataContainer\BlueprintArticleCategory;
 
 $GLOBALS['TL_DCA']['tl_blueprint_article_category'] = [
     'config' => [
@@ -58,7 +58,7 @@ $GLOBALS['TL_DCA']['tl_blueprint_article_category'] = [
             'search' => true,
             'eval' => ['rgxp' => 'alias', 'doNotCopy' => true, 'maxlength' => 255, 'tl_class' => 'w50'],
             'save_callback' => [
-                [\Kiwi\Contao\Blueprints\DataContainer\Article::class, 'generateAlias']
+                [\Kiwi\ContaoBlueprintsBundle\DataContainer\Article::class, 'generateAlias']
             ],
             'sql' => "varchar(255) BINARY NOT NULL default ''"
         ],
