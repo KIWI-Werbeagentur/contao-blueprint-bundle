@@ -23,7 +23,7 @@
     },
     "autoload": {
         "psr-4" : {
-            "Kiwi\\Contao\\BlueprintsBundle\\" : "src/"
+            "Kiwi\\Contao\\ContaoBlueprintsBundle\\" : "src/"
         }
     },
     "extra":{
