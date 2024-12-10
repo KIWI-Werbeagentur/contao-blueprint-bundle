@@ -14,7 +14,7 @@ class Content
      * Change contents ptable to "tl_article" when copying blueprint
      * */
     #[AsCallback(table: 'tl_content', target: 'config.oncopy')]
-    public function onCopyListener($intID, DataContainer $dc)
+    public function onCopyListener($intID, DataContainer $objDca)
     {
         $objSession = System::getContainer()->get('request_stack')->getSession();
         $arrClipboard = $objSession->get('CLIPBOARD');

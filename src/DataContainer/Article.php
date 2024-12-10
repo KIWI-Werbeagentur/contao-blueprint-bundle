@@ -97,15 +97,15 @@ class Article
      * Save Blueprint Category Alias
      * */
     #[AsCallback(table: 'tl_article', target: 'fields.alias.save')]
-    public function generateAlias($varValue, DataContainer $dc)
+    public function generateAlias($varValue, DataContainer $objDca)
     {
-        $aliasExists = static function (string $alias) use ($dc): bool {
-            return Database::getInstance()->prepare("SELECT id FROM tl_blueprint_article_category WHERE alias=? AND id!=?")->execute($alias, $dc->id)->numRows > 0;
+        $aliasExists = static function (string $alias) use ($objDca): bool {
+            return Database::getInstance()->prepare("SELECT id FROM tl_blueprint_article_category WHERE alias=? AND id!=?")->execute($alias, $objDca->id)->numRows > 0;
         };
 
         // Generate an alias if there is none
         if (!$varValue) {
-            $varValue = System::getContainer()->get('contao.slug')->generate((string)$dc->activeRecord->title, [], $aliasExists);
+            $varValue = System::getContainer()->get('contao.slug')->generate((string)$objDca->activeRecord->title, [], $aliasExists);
         } elseif (preg_match('/^[1-9]\d*$/', $varValue)) {
             throw new Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasNumeric'], $varValue));
         } elseif ($aliasExists($varValue)) {
