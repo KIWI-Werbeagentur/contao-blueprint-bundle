@@ -13,7 +13,7 @@ class GetFrontendModuleListener
     public function __invoke($objRow, $strBuffer, $objModule): ?string
     {
         global $objPage;
-        if ($objPage->type == 'blueprint_article_preview') {
+        if ($objPage && $objPage->type == 'blueprint_article_preview') {
             return "";
         }
         return $strBuffer;
