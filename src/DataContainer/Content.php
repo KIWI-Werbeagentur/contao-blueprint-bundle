@@ -21,7 +21,13 @@ class Content
 
         if (Input::get('key') == 'blueprint_article_insert' || ($arrClipboard['tl_article']['type'] ?? false) == 'blueprint') {
             $objContent = ContentModel::findById($intID);
-            $objContent->ptable = "tl_article";
+            $objContent->ptable = ($objContent->ptable == "tl_blueprint_article") ? "tl_article" : $objContent->ptable;
+            $objContent->save();
+        }
+
+        if (Input::get('key') == 'article_insert' || ($arrClipboard['tl_article']['type'] ?? false) == 'article') {
+            $objContent = ContentModel::findById($intID);
+            $objContent->ptable = "tl_blueprint_article";
             $objContent->save();
         }
     }

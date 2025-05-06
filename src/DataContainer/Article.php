@@ -28,7 +28,7 @@ class Article
         $objSession = System::getContainer()->get('request_stack')->getSession();
         $arrClipboard = $objSession->get('CLIPBOARD');
 
-        if (\Contao\Input::get('key') == 'blueprint_article_insert' || ($arrClipboard['tl_article']['type'] ?? false) == 'blueprint') {
+        if (Input::get('key') == 'blueprint_article_insert' || ($arrClipboard['tl_article']['type'] ?? false) == 'blueprint') {
             // paste button
             $objSession = System::getContainer()->get('request_stack')->getSession();
             $arrClipboard = $objSession->get('CLIPBOARD');

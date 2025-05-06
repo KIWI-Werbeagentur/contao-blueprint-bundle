@@ -2,6 +2,7 @@
 
 namespace Kiwi\Contao\BlueprintsBundle;
 
+use Contao\ArticleModel;
 use Contao\LayoutModel;
 use Contao\System;
 use Kiwi\Contao\BlueprintsBundle\Drivers\DC_Table_Blueprint;
@@ -40,15 +41,24 @@ class Blueprint
     /*
      * Copy chosen blueprint article into tl_article
      * */
-    public function insert(): void
+    public function insertBlueprint(): void
     {
-        $container = System::getContainer();
-        $objSession = $container->get('request_stack')->getSession();
-
         $intBlueprint = Input::get('id');
         $objBlueprint = BlueprintArticleModel::findById($intBlueprint);
 
         $objBlueprint->pid = Input::get('pid');
-        (new DC_Table_Blueprint('tl_article', $objBlueprint->row()))->copy(true);
+        (new DC_Table_Blueprint('tl_article', $objBlueprint->row()))->copyBlueprint(true);
+    }
+
+    public function insertArticle():void
+    {
+        $objSession = System::getContainer()->get('request_stack')->getSession();
+        $arrClipboard = $objSession->get('CLIPBOARD');
+
+        if($arrClipboard['tl_article'] ?? false){
+            $objArticle = ArticleModel::findByPk($arrClipboard['tl_article']['id']);
+            $objArticle->pid = intval(Input::get('pid'));
+            (new DC_Table_Blueprint('tl_blueprint_article', $objArticle->row()))->copyArticle(true);
+        }
     }
 }

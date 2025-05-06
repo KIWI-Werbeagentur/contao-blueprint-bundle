@@ -2,6 +2,10 @@
 
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Contao\Image;
+use Contao\Input;
+use Contao\System;
+use Kiwi\Contao\BlueprintsBundle\DataContainer\Article;
 
 $this->loadDataContainer('tl_article');
 
@@ -43,3 +47,16 @@ $GLOBALS['TL_DCA']['tl_blueprint_article'] += [
         ]
     ]
 ];
+
+$objSession = System::getContainer()->get('request_stack')->getSession();
+$arrClipboard = $objSession->get('CLIPBOARD');
+
+if($arrClipboard['tl_article'] ?? false) {
+    $strPid = Input::get('id');
+    $GLOBALS['TL_DCA']['tl_blueprint_article']['list']['global_operations']['article'] = [
+        'href' => "key=article_insert&act=copy&pid={$strPid}&mode=2",
+        'class' => 'header_blueprint',
+        'attributes' => 'onclick="Backend.getScrollOffset()"',
+        'icon' => "new"
+    ];
+}
