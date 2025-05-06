@@ -11,4 +11,10 @@ $GLOBALS['TL_DCA']['tl_article']['list']['global_operations']['blueprint'] = [
     'icon' => 'bundles/kiwiblueprints/blueprint.svg',
 ];
 
+$GLOBALS['TL_DCA']['tl_article']['fields']['template'] = [
+    'sql' => "int(10) unsigned NOT NULL default 0"
+];
+
 $GLOBALS['TL_DCA']['tl_article']['config']['onload_callback'][] = [Article::class, 'initPasting'];
+
+$GLOBALS['TL_DCA']['tl_content']['config']['oncopy_callback'][] = [Article::class, 'onCopyListener'];

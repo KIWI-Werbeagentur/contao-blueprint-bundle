@@ -2,6 +2,8 @@
 
 namespace Kiwi\Contao\BlueprintsBundle\DataContainer;
 
+use Contao\ArticleModel;
+use Contao\ContentModel;
 use Contao\CoreBundle\Security\ContaoCorePermissions;
 use Contao\CoreBundle\Security\DataContainer\CreateAction;
 use Contao\Image;
@@ -19,6 +21,14 @@ use Contao\System;
 
 class Article
 {
+    #[AsCallback(table: 'tl_article', target: 'config.oncopy')]
+    public function onCopyListener($intID, DataContainer $objDca)
+    {
+        $objArticle = ArticleModel::findByPk($intID);
+            $objArticle->template = 0;
+            $objArticle->save();
+    }
+
     /*
      * Initialize Pasting Mode for Blueprints
      * Add Preview

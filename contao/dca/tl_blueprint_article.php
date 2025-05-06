@@ -1,5 +1,6 @@
 <?php
 
+use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
 use Contao\Image;
@@ -22,6 +23,9 @@ $GLOBALS['TL_DCA']['tl_blueprint_article'] += [
         'ctable' => ['tl_content'],
         'switchToEdit' => true,
         'enableVersioning' => true,
+        'onsubmit_callback' => [function($dc){
+            Database::getInstance()->prepare("UPDATE tl_blueprint_article SET template = ?  WHERE id=?")->execute($dc->id, $dc->id);
+        }],
         'markAsCopy' => 'title',
         'sql' =>
             [
@@ -48,15 +52,23 @@ $GLOBALS['TL_DCA']['tl_blueprint_article'] += [
     ]
 ];
 
-$objSession = System::getContainer()->get('request_stack')->getSession();
-$arrClipboard = $objSession->get('CLIPBOARD');
+$GLOBALS['TL_DCA']['tl_blueprint_article']['fields']['template'] = [
+    'sql' => "int(10) unsigned NOT NULL",
+    'eval' => ['alwaysSave' => true],
+];
 
-if($arrClipboard['tl_article'] ?? false) {
-    $strPid = Input::get('id');
-    $GLOBALS['TL_DCA']['tl_blueprint_article']['list']['global_operations']['article'] = [
-        'href' => "key=article_insert&act=copy&pid={$strPid}&mode=2",
-        'class' => 'header_blueprint',
-        'attributes' => 'onclick="Backend.getScrollOffset()"',
-        'icon' => "new"
-    ];
-}
+try {
+    $objSession = System::getContainer()->get('request_stack')->getSession();
+
+    $arrClipboard = $objSession->get('CLIPBOARD');
+
+    if ($arrClipboard['tl_article'] ?? false) {
+        $strPid = Input::get('id');
+        $GLOBALS['TL_DCA']['tl_blueprint_article']['list']['global_operations']['article'] = [
+            'href' => "key=article_insert&act=copy&pid={$strPid}&mode=2",
+            'class' => 'header_blueprint',
+            'attributes' => 'onclick = "Backend.getScrollOffset()"',
+            'icon' => "new"
+        ];
+    }
+} catch(Exception $e){}
