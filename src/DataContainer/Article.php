@@ -25,8 +25,11 @@ class Article
     public function onCopyListener($intID, DataContainer $objDca)
     {
         $objArticle = ArticleModel::findByPk($intID);
-            $objArticle->template = 0;
-            $objArticle->save();
+
+        if(!$objArticle) return;
+
+        $objArticle->template = 0;
+        $objArticle->save();
     }
 
     /*
