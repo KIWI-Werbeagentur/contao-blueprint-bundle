@@ -64,6 +64,7 @@ class Article
                 $objIFrame->layout = $objLayout->id;
                 $arrIFrames[] = json_encode($objIFrame);
             }
+            echo "<script>var strBlueprintPreview = '/preview.php/kiwi/blueprints/article?do=blueprint_article&key=blueprint_article_preview';</script>";
             echo "<script>var arrBlueprintPreviewSrcSet = [" . implode(",", $arrIFrames) . "];</script>";
             $GLOBALS['TL_DCA']['tl_article']['list']['sorting']['paste_button_callback'] = [Article::class, 'addBlueprintArticlePasteButton'];
         }
@@ -99,6 +100,7 @@ class Article
             'categories' => $objBlueprintArticleCategoryCollection,
             'record' => $arrData,
             'layout' => PageModel::findById($arrData['pid'])->loadDetails()->layout,
+            'page' => $strTable == 'tl_article' ? $arrData['pid']:$arrData['id'],
             'href' => $href,
             'icon' => $strTable == 'tl_article' ? "bundles/kiwiblueprints/pasteinto.svg" : "bundles/kiwiblueprints/pastenextto.svg",
             'table' => $strTable,

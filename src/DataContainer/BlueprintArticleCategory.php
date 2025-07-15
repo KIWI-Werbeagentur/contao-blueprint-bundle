@@ -5,6 +5,7 @@ namespace Kiwi\Contao\BlueprintsBundle\DataContainer;
 use Contao\Backend;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsCallback;
 use Contao\LayoutModel;
+use Contao\PageModel;
 use Contao\System;
 
 class BlueprintArticleCategory extends Backend
@@ -16,9 +17,11 @@ class BlueprintArticleCategory extends Backend
     public function blueprintPreviewButton(string|null $strHref, string|null $strLabel, string|null $strTitle, string|null $strClass, string|null $strAttributes, string|null $strTable)
     {
         $objLayoutCollection = LayoutModel::findAll();
+        $objPageCollection = PageModel::findAll();
 
         return System::getContainer()->get('twig')->render('@KiwiBlueprints/backend/blueprint_article_preview.html.twig', [
             'layouts' => $objLayoutCollection,
+            'pages' => $objPageCollection,
             'label' => $strLabel,
             'title' => $strTitle,
             'class' => $strClass,

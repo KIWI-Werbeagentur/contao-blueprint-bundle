@@ -1,11 +1,13 @@
 <form action="preview.php/kiwi/blueprints/article" method="GET">
     <input type="hidden" name="do" value="blueprint_article"/>
     <input type="hidden" name="key" value="blueprint_article_preview"/>
-    <select name="layout">
-        {% for layout in layouts %}
-            <option value="{{  layout.id  }}">{{ layout.getRelated('pid').name }} | {{  layout.name  }}</option>
-        {% endfor %}
-    </select>
+    {% with {file: asset('assets/chosen/css/chosen.min.css'), lazy: true} %}
+        <select name="page" class="tl_chosen">
+            {% for page in pages %}
+                <option value="{{  page.id  }}">{{  page.title  }} ({{ page.id }})</option>
+            {% endfor %}
+        </select>
+    {% endwith %}
     <input type="hidden" name="rt" value="{{ csrf_token('') }}"/>
     <input type="submit" formtarget="_blank" title="{{ title }}" {{ attributes }} value="{{ label }}">
 </form>

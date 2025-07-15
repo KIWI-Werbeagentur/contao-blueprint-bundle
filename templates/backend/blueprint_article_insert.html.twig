@@ -1,4 +1,4 @@
-<div class="add_blueprint add_blueprint__wrapper" data-layout="{{ layout }}">
+<div class="add_blueprint add_blueprint__wrapper" data-layout="{{ layout ?? 0 }}" data-page="{{ page }}">
     <span class="add_blueprint__item">{% if icon %}<img src="{{ icon }}"/>{% endif %}</span>
     <ul class="add_blueprint__item__wrapper_outer">
         <div class="add_blueprint__item__wrapper category">

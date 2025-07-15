@@ -6,12 +6,14 @@
 }
 
 .add_blueprint li {
-    padding: 7px 15px;
-    margin-bottom: 2px;
     background: white;
-    border-bottom: 1px solid var(--border);
     transition: .3s;
     cursor: default;
+}
+
+.add_blueprint li:not(:last-child) {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2px;
 }
 
 .add_blueprint li:hover {
@@ -21,6 +23,10 @@
 .add_blueprint__item {
     display: block;
     width: 100%;
+}
+
+.add_blueprint__item__wrapper .add_blueprint__item{
+    padding: 10px 25px;
 }
 
 .add_blueprint__item__wrapper {
@@ -35,15 +41,17 @@
 .add_blueprint .blueprint {
     left: 0;
     transform: translateX(-100%);
-    margin-top: -7px;
 }
 
 .add_blueprint__item__wrapper {
     opacity: 0;
     pointer-events: none;
-    right: 0;
     min-width: 100%;
     box-shadow: 0 0 15px #00000038;
+}
+
+.add_blueprint__item__wrapper.category {
+    right: 0;
 }
 
 .add_blueprint__wrapper:hover > .add_blueprint__item__wrapper,
@@ -134,10 +142,10 @@
     margin-left: -100%;
 }
 
-.viewport__content:not(.--active) {
+/*.viewport__content:not(.--active) {
     opacity: 0;
     pointer-events: none;
-}
+}*/
 
 /*iframe content*/
 .--blueprint_insert .mod_article.--inactive {
@@ -147,4 +155,15 @@
 .--blueprint_insert .sf-toolbar,
 .--blueprint_insert .cto-toolbar {
     display: none !important;
+}
+
+#tl_buttons .chzn-container{
+    display: inline-flex;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#tl_buttons .chzn-container ~ [type="submit"]{
+    height: 30px;
+    margin-top: -3px;
 }

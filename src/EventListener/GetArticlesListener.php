@@ -15,7 +15,7 @@ class GetArticlesListener
     public function __invoke(int $pageId, string $column): string|null
     {
         global $objPage;
-        if ($objPage->type == 'blueprint_article_preview') {
+        if ($objPage->isBlueprintPreview && $column == 'main') {
             $objBlueprintArticleCollection = BlueprintArticleModel::findAll();
             if(!$objBlueprintArticleCollection) return null;
 

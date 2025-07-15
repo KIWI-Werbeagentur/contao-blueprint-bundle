@@ -9,6 +9,7 @@ use Contao\ManagerPlugin\Bundle\Parser\ParserInterface;
 use Contao\ManagerPlugin\Config\ConfigPluginInterface;
 use Contao\ManagerPlugin\Routing\RoutingPluginInterface;
 use Kiwi\Contao\BlueprintsBundle\KiwiBlueprintsBundle;
+use Kiwi\Contao\CmxBundle\KiwiCmxBundle;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Loader\LoaderResolverInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -23,7 +24,8 @@ class Plugin implements BundlePluginInterface, RoutingPluginInterface, ConfigPlu
         return [
             BundleConfig::create(KiwiBlueprintsBundle::class)
                 ->setLoadAfter([
-                    ContaoCoreBundle::class
+                    ContaoCoreBundle::class,
+                    KiwiCmxBundle::class
                 ]),
         ];
     }

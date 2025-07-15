@@ -4,7 +4,7 @@ namespace Kiwi\Contao\BlueprintsBundle\EventListener;
 
 use Contao\CoreBundle\DependencyInjection\Attribute\AsHook;
 
-#[AsHook('getFrontendModule')]
+#[AsHook('getFrontendModule', priority: -100)]
 class GetFrontendModuleListener
 {
     /*
@@ -13,7 +13,7 @@ class GetFrontendModuleListener
     public function __invoke($objRow, $strBuffer, $objModule): ?string
     {
         global $objPage;
-        if ($objPage && $objPage->type == 'blueprint_article_preview') {
+        if ($objPage && $objPage->isBlueprintPreview) {
             return "";
         }
         return $strBuffer;
