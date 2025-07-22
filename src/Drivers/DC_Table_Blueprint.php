@@ -10,6 +10,8 @@ use Contao\Input;
 
 class DC_Table_Blueprint extends DC_Table
 {
+    protected $intCurrentRecord;
+
     /*
      * Set Blueprint as current record, when blueprints are inserted
      * */
@@ -17,11 +19,8 @@ class DC_Table_Blueprint extends DC_Table
     {
         if (Input::get('key') == 'blueprint_article_insert') {
             return (BlueprintArticleModel::findById(Input::get('id')))->row();
-        }
-        elseif (Input::get('key') == 'article_insert') {
-            $objSession = System::getContainer()->get('request_stack')->getSession();
-            $arrClipboard = $objSession->get('CLIPBOARD');
-            return (ArticleModel::findById($arrClipboard['tl_article']['id']))->row();
+        } elseif (Input::get('key') == 'article_insert') {
+            return (ArticleModel::findById($this->intCurrentRecord))->row();
         }
         return parent::getCurrentRecord($id, $table);
     }
@@ -34,11 +33,8 @@ class DC_Table_Blueprint extends DC_Table
         //BUG: Copying children of tl_content
         if (Input::get('key') == 'blueprint_article_insert') {
             $table = ($table == 'tl_content') ? 'tl_content' : 'tl_blueprint_article';
-        }
-        elseif (Input::get('key') == 'article_insert') {
-            $objSession = System::getContainer()->get('request_stack')->getSession();
-            $arrClipboard = $objSession->get('CLIPBOARD');
-            $id = ($table == 'tl_content') ? $id : $arrClipboard['tl_article']['id'];
+        } elseif (Input::get('key') == 'article_insert') {
+            $id = ($table == 'tl_content') ? $id : $this->intCurrentRecord;
             $table = ($table == 'tl_content') ? 'tl_content' : 'tl_article';
         }
         parent::copyChildren($table, $insertID, intval($id), $parentId);
@@ -56,9 +52,12 @@ class DC_Table_Blueprint extends DC_Table
     /*
      * implement custom redirection after copying, to get to new article instead of blueprint_article
      * */
-    public function copyArticle($blnDoNotRedirect = false): void
+    public function copyArticle($intCurrentRecord, $blnDoNotRedirect = false): void
     {
-        $intId = parent::copy($blnDoNotRedirect);
-        $this->redirect(self::switchToEdit($intId) . "&do=blueprint_article");
+        $this->intCurrentRecord = $intCurrentRecord;
+        $intId = parent::copy(true);
+        if(!$blnDoNotRedirect) {
+            $this->redirect(self::switchToEdit($intId) . "&do=blueprint_article");
+        }
     }
 }
