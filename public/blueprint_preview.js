@@ -1,4 +1,4 @@
-window.parent.addEventListener("blueprint_insert", () => {
+window.parent.addEventListener("blueprint_insert", (e) => {
     document.querySelector('body').classList.add('--blueprint_insert')
 
     document.querySelectorAll(".mod_article").forEach(article => {
