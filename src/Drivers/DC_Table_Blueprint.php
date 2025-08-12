@@ -14,8 +14,6 @@ use Contao\Input;
 
 class DC_Table_Blueprint extends DC_Table
 {
-    protected $intCurrentRecord;
-    
     public function __construct($strTable, $arrModule=array())
     {
         if (Input::get('clipboard') !== null)
@@ -39,7 +37,7 @@ class DC_Table_Blueprint extends DC_Table
                 $objBlueprint = (BlueprintArticleModel::findById($intId))->row();
                 return $objBlueprint;
             }
-        } elseif (Input::get('key') == 'blueprint_article_insert') {
+        } elseif (Input::get('key') == 'blueprint_article_insert' && Input::get('id') && BlueprintArticleModel::findById(Input::get('id'))) {
             return (BlueprintArticleModel::findById(Input::get('id')))->row();
         } elseif (Input::get('key') == 'article_insert') {
             return (ArticleModel::findById($this->intCurrentRecord))->row();
