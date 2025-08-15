@@ -52,10 +52,7 @@ $GLOBALS['TL_DCA']['tl_blueprint_article'] += [
     ]
 ];
 
-$GLOBALS['TL_DCA']['tl_blueprint_article']['fields']['template'] = [
-    'sql' => "int(10) unsigned NOT NULL",
-    'eval' => ['alwaysSave' => true],
-];
+$GLOBALS['TL_DCA']['tl_blueprint_article']['fields']['template']['eval'] = ['alwaysSave' => true];
 
 try {
     $objSession = System::getContainer()->get('request_stack')->getSession();
