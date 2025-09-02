@@ -119,12 +119,16 @@ class DC_Table_Blueprint extends DC_Table
     /*
      * implement custom redirection after copying, to get to new article instead of blueprint_article
      * */
-    public function copyArticle($intCurrentRecord, $blnDoNotRedirect = false): void
+    public function copyArticle($intCurrentRecord, $strRedirectFn = false)
     {
         $this->intCurrentRecord = $intCurrentRecord;
         $intId = parent::copy(true);
-        if (!$blnDoNotRedirect) {
-            $this->redirect(self::switchToEdit($intId) . "&do=blueprint_article");
+        if ($strRedirectFn) {
+            $objSession = System::getContainer()->get('request_stack')->getSession();
+            $objSession->set('CLIPBOARD', []);
+            
+            $this->redirect(self::{$strRedirectFn}($intId) . "&do=blueprint_article");
         }
+        return $this;
     }
 }

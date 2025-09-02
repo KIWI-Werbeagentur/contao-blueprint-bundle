@@ -63,15 +63,31 @@ class Blueprint
         (new DC_Table_Blueprint('tl_article', $objBlueprint->row()))->copyBlueprint(true);
     }
 
-    public function insertArticle():void
+    public function insertArticle($id, $strRedirect = false){
+        $objArticle = ArticleModel::findByPk($id);
+        $objArticle->pid = intval(Input::get('pid'));
+        return (new DC_Table_Blueprint('tl_blueprint_article', $objArticle->row()))->copyArticle($id, $strRedirect);
+    }
+
+    public function insertArticles():void
     {
         $objSession = System::getContainer()->get('request_stack')->getSession();
         $arrClipboard = $objSession->get('CLIPBOARD');
 
         if($arrClipboard['tl_article'] ?? false){
-            $objArticle = ArticleModel::findByPk($arrClipboard['tl_article']['id']);
-            $objArticle->pid = intval(Input::get('pid'));
-            (new DC_Table_Blueprint('tl_blueprint_article', $objArticle->row()))->copyArticle(true);
+            if(!is_array($arrClipboard['tl_article']['id'])){
+                $objDc = $this->insertArticle($arrClipboard['tl_article']['id'], 'switchToEdit');
+            }
+            else{
+                $arrArticles = $arrClipboard['tl_article']['id'];
+                foreach ($arrArticles as $id) {
+                    $arrClipboard['tl_article']['id'] = $id;
+                    $objSession->set('CLIPBOARD', $arrClipboard);
+                    $objDc = $this->insertArticle($id);
+                }
+                $objSession->set('CLIPBOARD', []);
+                $objDc->redirect($objDc::getReferer($id) . "&do=blueprint_article");
+            }
         }
     }
 }
