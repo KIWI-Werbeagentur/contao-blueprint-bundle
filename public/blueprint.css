@@ -11,6 +11,10 @@
     cursor: default;
 }
 
+[data-color-scheme="dark"] .add_blueprint li{
+    background: #424448;
+}
+
 .add_blueprint li:not(:last-child) {
     border-bottom: 1px solid var(--border);
     margin-bottom: 2px;
@@ -68,6 +72,10 @@
     height: calc(100vh);
     overflow: auto;
     background: white;
+}
+
+[data-color-scheme="dark"] .blueprint_article_preview__wrapper {
+    background: #1b1d21;
 }
 
 .viewport {
