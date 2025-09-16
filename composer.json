@@ -1,8 +1,9 @@
 {
     "name": "kiwi/contao-blueprints",
     "type": "contao-bundle",
-    "description": "This contao-bundle is intended to enhance the editors UX of your contao installation. It allows you to create reusable article blueprints so that editor doesn't have to build them from scratch.",
-    "license": "proprietary",
+    "keywords": ["contao", "blueprints", "templates", "article templates", "preview"],
+    "description": "This Contao bundle allows you to create reusable article blueprints with preview when inserting.",
+    "license": "LGPL-3.0-or-later",
     "authors": [
         {
             "name": "Katrin Zimmermann",
@@ -30,3 +31,4 @@
         "contao-manager-plugin": "Kiwi\\Contao\\BlueprintsBundle\\ContaoManager\\Plugin"
     }
 }
+
