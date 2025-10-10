@@ -3,10 +3,9 @@
 use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
-use Contao\Image;
 use Contao\Input;
 use Contao\System;
-use Kiwi\Contao\BlueprintsBundle\DataContainer\Article;
+use Kiwi\Contao\BlueprintsBundle\DataContainer\BlueprintArticle;
 
 $this->loadDataContainer('tl_article');
 
@@ -23,7 +22,7 @@ $GLOBALS['TL_DCA']['tl_blueprint_article'] += [
         'ctable' => ['tl_content'],
         'switchToEdit' => true,
         'enableVersioning' => true,
-        'onsubmit_callback' => [function($dc){
+        'onsubmit_callback' => [function ($dc) {
             Database::getInstance()->prepare("UPDATE tl_blueprint_article SET template = ?  WHERE id=?")->execute($dc->id, $dc->id);
         }],
         'markAsCopy' => 'title',
@@ -53,6 +52,9 @@ $GLOBALS['TL_DCA']['tl_blueprint_article'] += [
 ];
 
 $GLOBALS['TL_DCA']['tl_blueprint_article']['fields']['template']['eval'] = ['alwaysSave' => true];
+$GLOBALS['TL_DCA']['tl_blueprint_article']['fields']['alias']['save_callback'] = [
+    [BlueprintArticle::class, 'generateAlias']
+];
 
 try {
     $objSession = System::getContainer()->get('request_stack')->getSession();
@@ -68,4 +70,5 @@ try {
             'icon' => "new"
         ];
     }
-} catch(Exception $e){}
+} catch (Exception $e) {
+}

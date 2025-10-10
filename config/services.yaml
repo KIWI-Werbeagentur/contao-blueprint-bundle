@@ -6,6 +6,8 @@ services:
     public: true
   Kiwi\Contao\BlueprintsBundle\DataContainer\Article:
     public: true
+  Kiwi\Contao\BlueprintsBundle\DataContainer\BlueprintArticle:
+    public: true
   Kiwi\Contao\BlueprintsBundle\DataContainer\BlueprintArticleCategory:
     public: true
   Kiwi\Contao\BlueprintsBundle\DataContainer\Content:
