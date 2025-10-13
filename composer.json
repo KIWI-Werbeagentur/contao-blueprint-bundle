@@ -16,7 +16,7 @@
     ],
     "require": {
         "php": "^8.2",
-        "contao/core-bundle": "~5.3.13",
+        "contao/core-bundle": "^5.3",
         "oneup/contao-backend-sortable-list-views": "^1.1.1"
     },
     "conflict": {
