@@ -1,5 +1,5 @@
 # KIWI. Contao Blueprints
-This bundle enhaces the UX of your backend editors by enabling you to store reusable article-templates (blueprints).
+This bundle enhaces the UX of your backend editors by enabling you to store reusable article-templates (blueprints) and as a result reduce visible editing-settings by adjusting contao permissions.
 On top they'll see a preview on different viewports before inserting the blueprint.
 
 ## Installation
@@ -34,4 +34,4 @@ Now that you've created some blueprints, your editors are able to use them by go
 ![](docs/images/blueprints--place.png)
 
 ## Extra
-Because editors now don't need to edit configurations as they already come with the blueprint you are now able to reduce permissions to a minimum and therefore improve transparency in editing. 
+Because editors now don't need to edit configurations as they already come with the blueprint you are now able to reduce contao user permissions to a minimum and therefore improve transparency in editing. 
