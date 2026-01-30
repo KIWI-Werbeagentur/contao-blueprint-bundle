@@ -1,3 +1,3 @@
 kiwi.contao.blueprints.controllers:
   resource: '@KiwiBlueprintsBundle/src/Controller'
-  type: annotation
+  type: attribute
