@@ -126,8 +126,8 @@ class DC_Table_Blueprint extends DC_Table
         if ($strRedirectFn) {
             $objSession = System::getContainer()->get('request_stack')->getSession();
             $objSession->set('CLIPBOARD', []);
-            
-            $this->redirect(self::{$strRedirectFn}($intId) . "&do=blueprint_article");
+
+            $this->redirect(Backend::addToUrl('do=blueprint_article&act=edit&id=' . $intId, true, ['key', 'id', 'mode', 'pid']));
         }
         return $this;
     }
