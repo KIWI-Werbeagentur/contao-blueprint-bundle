@@ -35,11 +35,24 @@ const toggleBueprint = (previewTrigger, intPage)=>{
     window.dispatchEvent(new CustomEvent("blueprint_preview", {detail: strBlueprint}))
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+function initBlueprintPreviews() {
+    // Check if previews already exist (avoid duplicates)
+    if (document.querySelector('[data-previews]')) {
+        return;
+    }
+
+    // Check if we have blueprint elements on the page
+    if (!document.querySelector('[data-blueprint-alias]')) {
+        return;
+    }
+
     //Insert Previews
     const tmp = document.createElement("div")
     tmp.innerHTML = iframes
-    document.querySelector('main').parentNode.append(tmp.firstElementChild)
+    const main = document.querySelector('main')
+    if (main && main.parentNode) {
+        main.parentNode.append(tmp.firstElementChild)
+    }
     let page = 0
 
     document.querySelectorAll('[data-blueprint-alias]').forEach(previewTrigger => {
@@ -56,9 +69,15 @@ window.addEventListener('DOMContentLoaded', () => {
                     const container = iframe.parentNode
                     container.innerHTML = preview
 
-                    container.querySelector('iframe').addEventListener('load', ()=>{
-                        window.dispatchEvent(new Event("blueprint_insert", {detail: intPage}))
-                        toggleBueprint(previewTrigger,intPage)
+                    const iframeElement = container.querySelector('iframe')
+                    iframeElement.addEventListener('load', ()=>{
+                        // Delay to ensure iframe scripts execute before dispatching events
+                        setTimeout(() => {
+                            window.dispatchEvent(new Event("blueprint_insert", {detail: intPage}))
+                            setTimeout(() => {
+                                toggleBueprint(previewTrigger,intPage)
+                            }, 10)
+                        }, 100)
                     }, true)
                 })
             }
@@ -73,7 +92,18 @@ window.addEventListener('DOMContentLoaded', () => {
             toggleBueprint(previewTrigger,intPage)
         })
     })
-});
+}
+
+// Initialize on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBlueprintPreviews);
+} else {
+    initBlueprintPreviews();
+}
+
+// Reinitialize on Turbo navigation
+document.addEventListener('turbo:load', initBlueprintPreviews);
+document.addEventListener('turbo:render', initBlueprintPreviews);
 
 window.addEventListener("load", () => {
     window.dispatchEvent(new Event("blueprint_insert"))
