@@ -34,13 +34,13 @@ class DC_Table_Blueprint extends DC_Table
             if(($objSession->get('CLIPBOARD')[$this->strTable]['original'] ?? null) == 'tl_blueprint_article') {
                 $intId = Input::get('id') ?? $objSession->get('CLIPBOARD')[$this->strTable]['id'] ?? null;
                 if (!$intId) return null;
-                $objBlueprint = (BlueprintArticleModel::findById($intId))->row();
-                return $objBlueprint;
+                $objBlueprint = BlueprintArticleModel::findById($intId);
+                return $objBlueprint ? $objBlueprint->row() : null;
             }
-        } elseif (Input::get('key') == 'blueprint_article_insert' && Input::get('id') && BlueprintArticleModel::findById(Input::get('id'))) {
-            return (BlueprintArticleModel::findById(Input::get('id')))->row();
-        } elseif (Input::get('key') == 'article_insert') {
-            return (ArticleModel::findById($this->intCurrentRecord))->row();
+        } elseif (Input::get('key') == 'blueprint_article_insert' && Input::get('id') && ($objBlueprint = BlueprintArticleModel::findById(Input::get('id')))) {
+            return $objBlueprint->row();
+        } elseif (Input::get('key') == 'article_insert' && ($objArticle = ArticleModel::findById($this->intCurrentRecord))) {
+            return $objArticle->row();
         }
         return parent::getCurrentRecord($id, $table);
     }
