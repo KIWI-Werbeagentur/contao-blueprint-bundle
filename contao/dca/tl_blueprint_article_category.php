@@ -28,6 +28,8 @@ $GLOBALS['TL_DCA']['tl_blueprint_article_category'] = [
             'format' => '%s',
         ],
         'global_operations' => [
+            'new',
+            'all',
             'blueprint_article_preview' => [
                 'href' => 'key=blueprint_article_preview',
                 'attributes' => 'target="_blank"',
