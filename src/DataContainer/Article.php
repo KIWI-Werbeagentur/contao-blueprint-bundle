@@ -82,6 +82,13 @@ class Article
             return '';
         }
 
+        $baseHref = Backend::addToUrl(http_build_query([
+            'do' => 'blueprint_article',
+            'mode' => $strTable == 'tl_article' ? 1 : 2,
+            'key' => 'blueprint_article_insert',
+            'pid' => $arrData['id'],
+        ]), true, ['id']);
+
         // Add Child entries with Blueprints
         foreach ($objBlueprintArticleCategoryCollection as $objBlueprintArticleCategory) {
             $objBlueprintArticleCollection = BlueprintArticleModel::findPublishedByPidAndTable($objBlueprintArticleCategory->id, ['order' => 'sorting']);
@@ -91,10 +98,12 @@ class Article
                 continue;
             }
 
+            foreach ($objBlueprintArticleCollection as $objBlueprintArticle) {
+                $objBlueprintArticle->href = $baseHref . '&amp;id=' . $objBlueprintArticle->id;
+            }
+
             $objBlueprintArticleCategory->blueprints = $objBlueprintArticleCollection;
         }
-
-        $href = Backend::addToUrl('');
 
         $objPage = PageModel::findById($arrData['pid']);
         $intLayout = null !== $objPage ? $objPage->loadDetails()->layout : 0;
@@ -104,7 +113,6 @@ class Article
             'record' => $arrData,
             'layout' => $intLayout,
             'page' => $strTable == 'tl_article' ? $arrData['pid']:$arrData['id'],
-            'href' => $href,
             'icon' => $strTable == 'tl_article' ? "bundles/kiwiblueprints/pasteinto.svg" : "bundles/kiwiblueprints/pastenextto.svg",
             'table' => $strTable,
             'mode' => $strTable == 'tl_article' ? 1 : 2
