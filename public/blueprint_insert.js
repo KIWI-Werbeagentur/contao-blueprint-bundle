@@ -22,6 +22,8 @@ const iframes = `
 
 const iframe = `<iframe class="viewport__content" data-layout="{{ layout }}" data-page="{{ page }}" src="{{ url }}"></iframe>`
 
+let ac = null;
+
 const toggleBueprint = (previewTrigger, intPage)=>{
     const strBlueprint = previewTrigger.dataset.blueprintAlias
 
@@ -35,16 +37,31 @@ const toggleBueprint = (previewTrigger, intPage)=>{
     window.dispatchEvent(new CustomEvent("blueprint_preview", {detail: strBlueprint}))
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    //Insert Previews
+function initBlueprintPreviews() {
+    // Abort any previous listeners (prevents duplicates after Turbo navigation)
+    if (ac) ac.abort();
+    ac = new AbortController();
+    const signal = ac.signal;
+
+    if (!document.querySelector('[data-blueprint-alias]')) {
+        return;
+    }
+
+    const existing = document.querySelector('[data-previews]');
+    if (existing) {
+        existing.remove();
+    }
+
     const tmp = document.createElement("div")
     tmp.innerHTML = iframes
-    document.querySelector('main').parentNode.append(tmp.firstElementChild)
-    let page = 0
+    const main = document.querySelector('main')
+    if (main && main.parentNode) {
+        main.parentNode.append(tmp.firstElementChild)
+    }
 
     document.querySelectorAll('[data-blueprint-alias]').forEach(previewTrigger => {
         previewTrigger.addEventListener('mouseenter', () => {
-            intPage = previewTrigger.closest('[data-page]').dataset.page
+            const intPage = previewTrigger.closest('[data-page]').dataset.page
             let preview = document.querySelector(`iframe[data-page='${intPage}']`)
 
             if (!preview) {
@@ -56,24 +73,39 @@ window.addEventListener('DOMContentLoaded', () => {
                     const container = iframe.parentNode
                     container.innerHTML = preview
 
-                    container.querySelector('iframe').addEventListener('load', ()=>{
-                        window.dispatchEvent(new Event("blueprint_insert", {detail: intPage}))
-                        toggleBueprint(previewTrigger,intPage)
+                    const iframeElement = container.querySelector('iframe')
+                    iframeElement.addEventListener('load', ()=>{
+                        setTimeout(() => {
+                            window.dispatchEvent(new Event("blueprint_insert", {detail: intPage}))
+                            setTimeout(() => {
+                                toggleBueprint(previewTrigger,intPage)
+                            }, 10)
+                        }, 100)
                     }, true)
                 })
             }
-        })
+        }, {signal})
     })
 
-    //Set preview visibility
     document.querySelectorAll("[data-blueprint-alias]").forEach(previewTrigger => {
         const intPage = previewTrigger.closest("[data-page]").dataset.page
 
         previewTrigger.addEventListener('mouseenter', () => {
             toggleBueprint(previewTrigger,intPage)
-        })
+        }, {signal})
     })
-});
+}
+
+// Initialize on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBlueprintPreviews);
+} else {
+    initBlueprintPreviews();
+}
+
+// Reinitialize on Turbo navigation
+document.addEventListener('turbo:load', initBlueprintPreviews);
+document.addEventListener('turbo:render', initBlueprintPreviews);
 
 window.addEventListener("load", () => {
     window.dispatchEvent(new Event("blueprint_insert"))
