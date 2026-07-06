@@ -44,11 +44,13 @@ class Article
         // Load preview JavaScript (required for Turbo navigation)
         $objLayoutCollection = LayoutModel::findAll();
         $arrIFrames = [];
-        foreach ($objLayoutCollection as $objLayout) {
-            $objIFrame = new \stdClass();
-            $objIFrame->url = "/preview.php/kiwi/blueprints/article?do=blueprint_article&key=blueprint_article_preview&layout={$objLayout->id}";
-            $objIFrame->layout = $objLayout->id;
-            $arrIFrames[] = json_encode($objIFrame);
+        if ($objLayoutCollection !== null) {
+            foreach ($objLayoutCollection as $objLayout) {
+                $objIFrame = new \stdClass();
+                $objIFrame->url = "/preview.php/kiwi/blueprints/article?do=blueprint_article&key=blueprint_article_preview&layout={$objLayout->id}";
+                $objIFrame->layout = $objLayout->id;
+                $arrIFrames[] = json_encode($objIFrame);
+            }
         }
         echo "<script>var strBlueprintPreview = '/preview.php/kiwi/blueprints/article?do=blueprint_article&key=blueprint_article_preview';</script>";
         echo "<script>var arrBlueprintPreviewSrcSet = [" . implode(",", $arrIFrames) . "];</script>";

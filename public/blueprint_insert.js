@@ -36,14 +36,15 @@ const toggleBueprint = (previewTrigger, intPage)=>{
 }
 
 function initBlueprintPreviews() {
-    // Check if previews already exist (avoid duplicates)
-    if (document.querySelector('[data-previews]')) {
-        return;
-    }
-
     // Check if we have blueprint elements on the page
     if (!document.querySelector('[data-blueprint-alias]')) {
         return;
+    }
+
+    // Remove stale preview container (e.g. after Turbo cache restore)
+    const existing = document.querySelector('[data-previews]');
+    if (existing) {
+        existing.remove();
     }
 
     //Insert Previews
