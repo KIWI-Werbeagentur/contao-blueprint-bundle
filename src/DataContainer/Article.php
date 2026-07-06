@@ -122,9 +122,9 @@ class Article
         if (!$varValue) {
             $varValue = System::getContainer()->get('contao.slug')->generate((string)$objDca->activeRecord->title, [], $aliasExists);
         } elseif (preg_match('/^[1-9]\d*$/', $varValue)) {
-            throw new Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasNumeric'], $varValue));
+            throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasNumeric'], $varValue));
         } elseif ($aliasExists($varValue)) {
-            throw new Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
+            throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
         }
 
         return $varValue;
