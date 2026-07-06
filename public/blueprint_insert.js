@@ -22,6 +22,8 @@ const iframes = `
 
 const iframe = `<iframe class="viewport__content" data-layout="{{ layout }}" data-page="{{ page }}" src="{{ url }}"></iframe>`
 
+let ac = null;
+
 const toggleBueprint = (previewTrigger, intPage)=>{
     const strBlueprint = previewTrigger.dataset.blueprintAlias
 
@@ -36,29 +38,30 @@ const toggleBueprint = (previewTrigger, intPage)=>{
 }
 
 function initBlueprintPreviews() {
-    // Check if we have blueprint elements on the page
+    // Abort any previous listeners (prevents duplicates after Turbo navigation)
+    if (ac) ac.abort();
+    ac = new AbortController();
+    const signal = ac.signal;
+
     if (!document.querySelector('[data-blueprint-alias]')) {
         return;
     }
 
-    // Remove stale preview container (e.g. after Turbo cache restore)
     const existing = document.querySelector('[data-previews]');
     if (existing) {
         existing.remove();
     }
 
-    //Insert Previews
     const tmp = document.createElement("div")
     tmp.innerHTML = iframes
     const main = document.querySelector('main')
     if (main && main.parentNode) {
         main.parentNode.append(tmp.firstElementChild)
     }
-    let page = 0
 
     document.querySelectorAll('[data-blueprint-alias]').forEach(previewTrigger => {
         previewTrigger.addEventListener('mouseenter', () => {
-            intPage = previewTrigger.closest('[data-page]').dataset.page
+            const intPage = previewTrigger.closest('[data-page]').dataset.page
             let preview = document.querySelector(`iframe[data-page='${intPage}']`)
 
             if (!preview) {
@@ -72,7 +75,6 @@ function initBlueprintPreviews() {
 
                     const iframeElement = container.querySelector('iframe')
                     iframeElement.addEventListener('load', ()=>{
-                        // Delay to ensure iframe scripts execute before dispatching events
                         setTimeout(() => {
                             window.dispatchEvent(new Event("blueprint_insert", {detail: intPage}))
                             setTimeout(() => {
@@ -82,16 +84,15 @@ function initBlueprintPreviews() {
                     }, true)
                 })
             }
-        })
+        }, {signal})
     })
 
-    //Set preview visibility
     document.querySelectorAll("[data-blueprint-alias]").forEach(previewTrigger => {
         const intPage = previewTrigger.closest("[data-page]").dataset.page
 
         previewTrigger.addEventListener('mouseenter', () => {
             toggleBueprint(previewTrigger,intPage)
-        })
+        }, {signal})
     })
 }
 

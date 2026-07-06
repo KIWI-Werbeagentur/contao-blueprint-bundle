@@ -81,6 +81,10 @@ class Article
 
         $objBlueprintArticleCategoryCollection = BlueprintArticleCategoryModel::findBy('published', 1, ['order' => 'sorting']);
 
+        if (null === $objBlueprintArticleCategoryCollection) {
+            return '';
+        }
+
         // Add Child entries with Blueprints
         foreach ($objBlueprintArticleCategoryCollection as $objBlueprintArticleCategory) {
             $objBlueprintArticleCollection = BlueprintArticleModel::findPublishedByPidAndTable($objBlueprintArticleCategory->id, ['order' => 'sorting']);
@@ -95,10 +99,13 @@ class Article
 
         $href = Backend::addToUrl('');
 
+        $objPage = PageModel::findById($arrData['pid']);
+        $intLayout = null !== $objPage ? $objPage->loadDetails()->layout : 0;
+
         return System::getContainer()->get('twig')->render('@KiwiBlueprints/backend/blueprint_article_insert.html.twig', [
             'categories' => $objBlueprintArticleCategoryCollection,
             'record' => $arrData,
-            'layout' => PageModel::findById($arrData['pid'])->loadDetails()->layout,
+            'layout' => $intLayout,
             'page' => $strTable == 'tl_article' ? $arrData['pid']:$arrData['id'],
             'href' => $href,
             'icon' => $strTable == 'tl_article' ? "bundles/kiwiblueprints/pasteinto.svg" : "bundles/kiwiblueprints/pastenextto.svg",
