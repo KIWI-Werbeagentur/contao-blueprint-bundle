@@ -10,7 +10,7 @@
                         <ul class="add_blueprint__item__wrapper blueprint">
                             {% for blueprint in category.blueprints %}
                                 <li class="add_blueprint__wrapper blueprint__wrapper" data-blueprint-alias="{{ blueprint.alias }}">
-                                    <a class="add_blueprint__item blueprint__item item" href="{{ href ~ "&do=blueprint_article&mode=1&mode=" ~ mode ~ "&key=blueprint_article_insert&id=" ~ blueprint.id ~ "&pid=" ~ record.id }}">{{ blueprint.title }}</a>
+                                    <a class="add_blueprint__item blueprint__item item" href="{{ blueprint.href|raw }}">{{ blueprint.title }}</a>
                                 </li>
                             {% endfor %}
                         </ul>
