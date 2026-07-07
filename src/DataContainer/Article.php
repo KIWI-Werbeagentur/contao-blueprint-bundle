@@ -87,8 +87,7 @@ class Article
             'mode' => $strTable == 'tl_article' ? 1 : 2,
             'key' => 'blueprint_article_insert',
             'pid' => $arrData['id'],
-        ]));
-
+        ]), true, ['id']);
         // Add Child entries with Blueprints
         foreach ($objBlueprintArticleCategoryCollection as $objBlueprintArticleCategory) {
             $objBlueprintArticleCollection = BlueprintArticleModel::findPublishedByPidAndTable($objBlueprintArticleCategory->id, ['order' => 'sorting']);
