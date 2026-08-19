@@ -6,8 +6,6 @@ use Contao\ArticleModel;
 use Contao\ContentModel;
 use Contao\CoreBundle\Security\ContaoCorePermissions;
 use Contao\CoreBundle\Security\DataContainer\CreateAction;
-use Contao\Image;
-use Contao\LayoutModel;
 use Contao\PageModel;
 use Contao\StringUtil;
 use Kiwi\Contao\BlueprintsBundle\Model\BlueprintArticleCategoryModel;
@@ -41,11 +39,11 @@ class Article
         $objSession = System::getContainer()->get('request_stack')->getSession();
         $arrClipboard = $objSession->get('CLIPBOARD');
 
-        if (Input::get('key') == 'blueprint_article_insert' || ($arrClipboard['tl_article']['type'] ?? false) == 'blueprint') {
-            // paste button
-            $objSession = System::getContainer()->get('request_stack')->getSession();
-            $arrClipboard = $objSession->get('CLIPBOARD');
+        // Load preview JavaScript (required for Turbo navigation)
+        echo "<script>var strBlueprintPreview = '/preview.php/kiwi/blueprints/article?do=blueprint_article&key=blueprint_article_preview';</script>";
+        $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/kiwiblueprints/blueprint_insert.js|static';
 
+        if (Input::get('key') == 'blueprint_article_insert' || ($arrClipboard['tl_article']['type'] ?? false) == 'blueprint') {
             $arrClipboard['tl_article'] = [
                 'id' => 0,
                 'type' => 'blueprint',
@@ -54,18 +52,6 @@ class Article
 
             $objSession->set('CLIPBOARD', $arrClipboard);
 
-            // preview
-            $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/kiwiblueprints/blueprint_insert.js';
-            $objLayoutCollection = LayoutModel::findAll();
-            $arrIFrames = [];
-            foreach ($objLayoutCollection as $objLayout) {
-                $objIFrame = new \stdClass();
-                $objIFrame->url = "/preview.php/kiwi/blueprints/article?do=blueprint_article&key=blueprint_article_preview&layout={$objLayout->id}";
-                $objIFrame->layout = $objLayout->id;
-                $arrIFrames[] = json_encode($objIFrame);
-            }
-            echo "<script>var strBlueprintPreview = '/preview.php/kiwi/blueprints/article?do=blueprint_article&key=blueprint_article_preview';</script>";
-            echo "<script>var arrBlueprintPreviewSrcSet = [" . implode(",", $arrIFrames) . "];</script>";
             $GLOBALS['TL_DCA']['tl_article']['list']['sorting']['paste_button_callback'] = [Article::class, 'addBlueprintArticlePasteButton'];
         }
     }
@@ -82,6 +68,10 @@ class Article
 
         $objBlueprintArticleCategoryCollection = BlueprintArticleCategoryModel::findBy('published', 1, ['order' => 'sorting']);
 
+        if (null === $objBlueprintArticleCategoryCollection) {
+            return '';
+        }
+
         // Add Child entries with Blueprints
         foreach ($objBlueprintArticleCategoryCollection as $objBlueprintArticleCategory) {
             $objBlueprintArticleCollection = BlueprintArticleModel::findPublishedByPidAndTable($objBlueprintArticleCategory->id, ['order' => 'sorting']);
@@ -96,10 +86,13 @@ class Article
 
         $href = Backend::addToUrl('');
 
+        $objPage = PageModel::findById($arrData['pid']);
+        $intLayout = null !== $objPage ? $objPage->loadDetails()->layout : 0;
+
         return System::getContainer()->get('twig')->render('@KiwiBlueprints/backend/blueprint_article_insert.html.twig', [
             'categories' => $objBlueprintArticleCategoryCollection,
             'record' => $arrData,
-            'layout' => PageModel::findById($arrData['pid'])->loadDetails()->layout,
+            'layout' => $intLayout,
             'page' => $strTable == 'tl_article' ? $arrData['pid']:$arrData['id'],
             'href' => $href,
             'icon' => $strTable == 'tl_article' ? "bundles/kiwiblueprints/pasteinto.svg" : "bundles/kiwiblueprints/pastenextto.svg",
@@ -115,7 +108,7 @@ class Article
     public function generateAlias($varValue, DataContainer $objDca)
     {
         $aliasExists = static function (string $alias) use ($objDca): bool {
-            return Database::getInstance()->prepare("SELECT id FROM tl_blueprint_article_category WHERE alias=? AND id!=?")->execute($alias, $objDca->id)->numRows > 0;
+            return Database::getInstance()->prepare("SELECT id FROM tl_article WHERE alias=? AND id!=?")->execute($alias, $objDca->id)->numRows > 0;
         };
 
         // Generate an alias if there is none

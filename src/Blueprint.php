@@ -31,13 +31,18 @@ class Blueprint
             $objPage->type = 'root';
             $objPage->title = "Blueprint Preview";
             $objPage->alias = "Preview";
-            $objPage->layout = Input::get('layout') ?? LayoutModel::findAll()->first()->id;
+            $objPage->layout = Input::get('layout');
             $objPage->includeLayout = Input::get('layout');
             $objPage->layoutId = Input::get('layout');
             $objPage->language = $GLOBALS['TL_LANGUAGE'];
             $objPage->noSearch = true;
             $objPage->protected = false;
         }
+
+        if (!$objPage) {
+            throw new \RuntimeException('No page or layout provided for blueprint preview.');
+        }
+
         $objPage->loadDetails();
         $objPage->isBlueprintPreview = 1;
 
@@ -59,14 +64,23 @@ class Blueprint
         $intBlueprint = Input::get('id');
         $objBlueprint = BlueprintArticleModel::findById($intBlueprint);
 
+        if (!$objBlueprint) {
+            throw new \RuntimeException(sprintf('Blueprint article with ID %s not found.', $intBlueprint));
+        }
+
         $objBlueprint->pid = Input::get('pid');
         (new DC_Table_Blueprint('tl_article', $objBlueprint->row()))->copyBlueprint(true);
     }
 
-    public function insertArticle($id, $strRedirect = false){
+    public function insertArticle($id, $blnRedirect = false){
         $objArticle = ArticleModel::findByPk($id);
+
+        if (!$objArticle) {
+            throw new \RuntimeException(sprintf('Article with ID %s not found.', $id));
+        }
+
         $objArticle->pid = intval(Input::get('pid'));
-        return (new DC_Table_Blueprint('tl_blueprint_article', $objArticle->row()))->copyArticle($id, $strRedirect);
+        return (new DC_Table_Blueprint('tl_blueprint_article', $objArticle->row()))->copyArticle($id, $blnRedirect);
     }
 
     public function insertArticles():void
@@ -76,17 +90,19 @@ class Blueprint
 
         if($arrClipboard['tl_article'] ?? false){
             if(!is_array($arrClipboard['tl_article']['id'])){
-                $objDc = $this->insertArticle($arrClipboard['tl_article']['id'], 'switchToEdit');
+                $objDc = $this->insertArticle($arrClipboard['tl_article']['id'], true);
             }
             else{
                 $arrArticles = $arrClipboard['tl_article']['id'];
+                $lastId = null;
                 foreach ($arrArticles as $id) {
                     $arrClipboard['tl_article']['id'] = $id;
                     $objSession->set('CLIPBOARD', $arrClipboard);
                     $objDc = $this->insertArticle($id);
+                    $lastId = $id;
                 }
                 $objSession->set('CLIPBOARD', []);
-                $objDc->redirect($objDc::getReferer($id) . "&do=blueprint_article");
+                $objDc->redirect($objDc::getReferer($lastId) . "&do=blueprint_article");
             }
         }
     }

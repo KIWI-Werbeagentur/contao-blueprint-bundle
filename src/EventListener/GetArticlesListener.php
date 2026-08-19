@@ -5,6 +5,7 @@ namespace Kiwi\Contao\BlueprintsBundle\EventListener;
 use Kiwi\Contao\BlueprintsBundle\Controller\FrontendModule\BlueprintArticleController;
 use Kiwi\Contao\BlueprintsBundle\Model\BlueprintArticleModel;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsHook;
+use Contao\Input;
 
 #[AsHook('getArticles')]
 class GetArticlesListener
@@ -16,8 +17,20 @@ class GetArticlesListener
     {
         global $objPage;
         if ($objPage->isBlueprintPreview && $column == 'main') {
-            $objBlueprintArticleCollection = BlueprintArticleModel::findAll();
-            if(!$objBlueprintArticleCollection) return null;
+            $alias = Input::get('alias');
+
+            if ($alias) {
+                $objBlueprintArticle = BlueprintArticleModel::findBy('alias', $alias);
+                if ($objBlueprintArticle) {
+                    $objBlueprintArticleCollection = [$objBlueprintArticle];
+                } else {
+                    return null;
+                }
+            } else {
+                $objBlueprintArticleCollection = BlueprintArticleModel::findAll();
+            }
+
+            if (!$objBlueprintArticleCollection) return null;
 
             $arrBlueprintArticles = [];
             foreach ($objBlueprintArticleCollection as $objBlueprintArticle) {

@@ -19,6 +19,9 @@
         "contao/core-bundle": "^5.3",
         "oneup/contao-backend-sortable-list-views": "^1.1.1"
     },
+    "suggest": {
+        "kiwi/contao-cmx": "Recommended for full functionality when used together with the CMX bundle"
+    },
     "conflict": {
         "contao/manager-plugin": "<2.0 || >=3.0"
     },

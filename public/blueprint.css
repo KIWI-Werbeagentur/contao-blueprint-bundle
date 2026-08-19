@@ -104,7 +104,7 @@
 }
 
 .viewport--smartphone .viewport__wrapper {
-    left: 169px;
+    left: 161.5px;
     top: 2px;
     width: 400px;
     transform: scale(calc(162 / 400));
@@ -115,15 +115,15 @@
 }
 
 .viewport--tablet .viewport__wrapper {
-    left: 145px;
-    top: 39px;
+    left: 140px;
+    top: 37px;
     width: 768px;
     transform: scale(calc(209 / 768));
     height: 1020px;
 }
 
 .viewport--desktop .viewport__wrapper {
-    left: 94px;
+    left: 86px;
     top: 58px;
     width: 1920px;
     transform: scale(calc(314 / 1920));

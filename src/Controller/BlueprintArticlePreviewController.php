@@ -2,8 +2,10 @@
 
 namespace Kiwi\Contao\BlueprintsBundle\Controller;
 
-use Contao\System;
+use Contao\CoreBundle\Framework\ContaoFramework;
+use Kiwi\Contao\BlueprintsBundle\Blueprint;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -13,14 +15,23 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/kiwi/blueprints/article', name: BlueprintArticlePreviewController::class, defaults: ['_scope' => 'frontend'])]
 class BlueprintArticlePreviewController
 {
-    public function __invoke(Request $request)
+    public function __construct(
+        private RequestStack $requestStack,
+        private Blueprint $blueprint,
+        private ContaoFramework $framework,
+    ) {
+    }
+
+    public function __invoke(Request $request): never
     {
-        $request = System::getContainer()->get('request_stack')->getCurrentRequest();
-        if($request->attributes->get('_preview')){
-            return System::getContainer()->get('Kiwi\Contao\BlueprintsBundle\Blueprint')->preview();
+        $this->framework->initialize();
+
+        $currentRequest = $this->requestStack->getCurrentRequest();
+        if ($currentRequest->attributes->get('_preview')) {
+            $this->blueprint->preview();
         }
 
-        $message = sprintf('No route found for "%s %s"', $request->getMethod(), $request->getUriForPath($request->getPathInfo()));
+        $message = sprintf('No route found for "%s %s"', $currentRequest->getMethod(), $currentRequest->getUriForPath($currentRequest->getPathInfo()));
         throw new NotFoundHttpException($message);
     }
 }

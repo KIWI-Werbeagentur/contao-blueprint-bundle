@@ -22,6 +22,9 @@ const iframes = `
 
 const iframe = `<iframe class="viewport__content" data-layout="{{ layout }}" data-page="{{ page }}" src="{{ url }}"></iframe>`
 
+let ac = null;
+let hoverGeneration = 0;
+
 const toggleBueprint = (previewTrigger, intPage)=>{
     const strBlueprint = previewTrigger.dataset.blueprintAlias
 
@@ -35,45 +38,96 @@ const toggleBueprint = (previewTrigger, intPage)=>{
     window.dispatchEvent(new CustomEvent("blueprint_preview", {detail: strBlueprint}))
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    //Insert Previews
+function initBlueprintPreviews() {
+    // Abort any previous listeners (prevents duplicates after Turbo navigation)
+    if (ac) ac.abort();
+    ac = new AbortController();
+    const signal = ac.signal;
+
+    if (!document.querySelector('[data-blueprint-alias]')) {
+        return;
+    }
+
+    const existing = document.querySelector('[data-previews]');
+    if (existing) {
+        existing.remove();
+    }
+
     const tmp = document.createElement("div")
     tmp.innerHTML = iframes
-    document.querySelector('main').parentNode.append(tmp.firstElementChild)
-    let page = 0
+    const main = document.querySelector('main')
+    if (main && main.parentNode) {
+        main.parentNode.append(tmp.firstElementChild)
+    }
 
     document.querySelectorAll('[data-blueprint-alias]').forEach(previewTrigger => {
         previewTrigger.addEventListener('mouseenter', () => {
-            intPage = previewTrigger.closest('[data-page]').dataset.page
-            let preview = document.querySelector(`iframe[data-page='${intPage}']`)
+            const generation = ++hoverGeneration;
+            const intPage = previewTrigger.closest('[data-page]').dataset.page
+            const strAlias = previewTrigger.dataset.blueprintAlias
+            const strSrc = `${strBlueprintPreview}&page=${intPage}&alias=${strAlias}`
 
-            if (!preview) {
-                preview = iframe
-                preview = preview.replace("{{ url }}", `${strBlueprintPreview}&page=${intPage}`)
-                preview = preview.replace("{{ page }}", intPage)
+            const previews = document.querySelectorAll(`iframe[data-page='${intPage}']`)
 
-                document.querySelectorAll('[data-previews] iframe').forEach(iframe => {
-                    const container = iframe.parentNode
-                    container.innerHTML = preview
+            if (!previews.length) {
+                const tmp = document.createElement("div")
+                tmp.innerHTML = iframe
+                    .replace("{{ url }}", strSrc)
+                    .replace("{{ page }}", intPage)
+                const template = tmp.firstElementChild
 
-                    container.querySelector('iframe').addEventListener('load', ()=>{
-                        window.dispatchEvent(new Event("blueprint_insert", {detail: intPage}))
-                        toggleBueprint(previewTrigger,intPage)
-                    }, true)
+                const containers = document.querySelectorAll('[data-previews] .viewport__wrapper')
+                containers.forEach(container => {
+                    container.innerHTML = ''
+                    const clone = template.cloneNode(true)
+                    container.appendChild(clone)
+                    clone.addEventListener('load', () => {
+                        if (signal.aborted || generation !== hoverGeneration) return
+                        setTimeout(() => {
+                            if (signal.aborted || generation !== hoverGeneration) return
+                            window.dispatchEvent(new Event("blueprint_insert", {detail: intPage}))
+                            setTimeout(() => {
+                                if (!signal.aborted && generation === hoverGeneration) {
+                                    toggleBueprint(previewTrigger, intPage)
+                                }
+                            }, 10)
+                        }, 100)
+                    }, {capture: true, signal})
+                })
+            } else {
+                let loaded = 0
+                previews.forEach(preview => {
+                    preview.src = strSrc
+                    preview.addEventListener('load', () => {
+                        if (signal.aborted || generation !== hoverGeneration) return
+                        loaded++
+                        if (loaded < previews.length) return
+                        setTimeout(() => {
+                            if (signal.aborted || generation !== hoverGeneration) return
+                            window.dispatchEvent(new Event("blueprint_insert", {detail: intPage}))
+                            setTimeout(() => {
+                                if (!signal.aborted && generation === hoverGeneration) {
+                                    toggleBueprint(previewTrigger, intPage)
+                                }
+                            }, 10)
+                        }, 100)
+                    }, {once: true, signal})
                 })
             }
-        })
+        }, {signal})
     })
+}
 
-    //Set preview visibility
-    document.querySelectorAll("[data-blueprint-alias]").forEach(previewTrigger => {
-        const intPage = previewTrigger.closest("[data-page]").dataset.page
+// Initialize on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBlueprintPreviews);
+} else {
+    initBlueprintPreviews();
+}
 
-        previewTrigger.addEventListener('mouseenter', () => {
-            toggleBueprint(previewTrigger,intPage)
-        })
-    })
-});
+// Reinitialize on Turbo navigation
+document.addEventListener('turbo:load', initBlueprintPreviews);
+document.addEventListener('turbo:render', initBlueprintPreviews);
 
 window.addEventListener("load", () => {
     window.dispatchEvent(new Event("blueprint_insert"))

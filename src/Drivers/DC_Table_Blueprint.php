@@ -34,13 +34,13 @@ class DC_Table_Blueprint extends DC_Table
             if(($objSession->get('CLIPBOARD')[$this->strTable]['original'] ?? null) == 'tl_blueprint_article') {
                 $intId = Input::get('id') ?? $objSession->get('CLIPBOARD')[$this->strTable]['id'] ?? null;
                 if (!$intId) return null;
-                $objBlueprint = (BlueprintArticleModel::findById($intId))->row();
-                return $objBlueprint;
+                $objBlueprint = BlueprintArticleModel::findById($intId);
+                return $objBlueprint ? $objBlueprint->row() : null;
             }
-        } elseif (Input::get('key') == 'blueprint_article_insert' && Input::get('id') && BlueprintArticleModel::findById(Input::get('id'))) {
-            return (BlueprintArticleModel::findById(Input::get('id')))->row();
-        } elseif (Input::get('key') == 'article_insert') {
-            return (ArticleModel::findById($this->intCurrentRecord))->row();
+        } elseif (Input::get('key') == 'blueprint_article_insert' && Input::get('id') && ($objBlueprint = BlueprintArticleModel::findById(Input::get('id')))) {
+            return $objBlueprint->row();
+        } elseif (Input::get('key') == 'article_insert' && ($objArticle = ArticleModel::findById($this->intCurrentRecord))) {
+            return $objArticle->row();
         }
         return parent::getCurrentRecord($id, $table);
     }
@@ -119,15 +119,15 @@ class DC_Table_Blueprint extends DC_Table
     /*
      * implement custom redirection after copying, to get to new article instead of blueprint_article
      * */
-    public function copyArticle($intCurrentRecord, $strRedirectFn = false)
+    public function copyArticle($intCurrentRecord, $blnRedirect = false)
     {
         $this->intCurrentRecord = $intCurrentRecord;
         $intId = parent::copy(true);
-        if ($strRedirectFn) {
+        if ($blnRedirect) {
             $objSession = System::getContainer()->get('request_stack')->getSession();
             $objSession->set('CLIPBOARD', []);
-            
-            $this->redirect(self::{$strRedirectFn}($intId) . "&do=blueprint_article");
+
+            $this->redirect(Backend::addToUrl('do=blueprint_article&act=edit&id=' . $intId, true, ['key', 'mode', 'pid']));
         }
         return $this;
     }
