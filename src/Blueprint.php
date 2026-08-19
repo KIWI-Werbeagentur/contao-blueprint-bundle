@@ -3,7 +3,6 @@
 namespace Kiwi\Contao\BlueprintsBundle;
 
 use Contao\ArticleModel;
-use Contao\LayoutModel;
 use Contao\PageModel;
 use Contao\System;
 use Kiwi\Contao\BlueprintsBundle\Drivers\DC_Table_Blueprint;

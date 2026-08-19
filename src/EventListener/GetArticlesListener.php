@@ -20,7 +20,7 @@ class GetArticlesListener
             $alias = Input::get('alias');
 
             if ($alias) {
-                $objBlueprintArticle = BlueprintArticleModel::findBy('alias', $alias);
+                $objBlueprintArticle = BlueprintArticleModel::findOneBy('alias', $alias);
                 if ($objBlueprintArticle) {
                     $objBlueprintArticleCollection = [$objBlueprintArticle];
                 } else {
