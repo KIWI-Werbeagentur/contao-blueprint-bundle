@@ -71,6 +71,10 @@ function navigateToPage(clpFrame, targetUrl, signal, callback) {
         return;
     }
 
+    if (isNavigating) {
+        hideSpinner();
+    }
+
     const gen = ++navigationGeneration;
     isNavigating = true;
     showSpinner();
@@ -79,8 +83,8 @@ function navigateToPage(clpFrame, targetUrl, signal, callback) {
         if (gen !== navigationGeneration) return;
         clpFrame.removeEventListener('load', onLoad);
         isNavigating = false;
-        hideSpinner();
         currentPageUrl = cleanTarget;
+        hideSpinner();
         callback();
     }
 
@@ -146,11 +150,7 @@ function initBlueprintPreviews() {
             var currentGen = ++hoverGeneration;
 
             function doNavigate() {
-                if (hoverGeneration !== currentGen) return;
-
                 navigateToPage(clpFrame, pageUrl, signal, function () {
-                    if (hoverGeneration !== currentGen) return;
-
                     if (pendingBlueprint && pendingBlueprint.pageId === pageId) {
                         var pb = pendingBlueprint;
                         pendingBlueprint = null;
@@ -159,6 +159,7 @@ function initBlueprintPreviews() {
                 });
             }
 
+            if (hoverGeneration !== currentGen) return;
             ensureSidebarOpen(clpFrame, doNavigate);
         }, { signal: signal });
     });
@@ -198,9 +199,8 @@ function initBlueprintPreviews() {
                             framePosition: framePosition
                         };
                         navigateToPage(clpFrame, pageUrl, signal, function () {
-                            if (hoverGeneration !== currentGen) return;
                             var pb = pendingBlueprint;
-                            if (pb && pb.pageId === pageId) {
+                            if (pb) {
                                 pendingBlueprint = null;
                                 loadBlueprintContent(clpFrame, pb.pageId, pb.alias, pb.afterArticle, pb.framePosition);
                             }
