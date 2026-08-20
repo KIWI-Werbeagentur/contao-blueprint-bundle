@@ -75,7 +75,19 @@ function loadBlueprintContent(clpFrame, pageId, alias, afterArticle, framePositi
     const turboFrame = frameDoc.getElementById(frameId);
     if (!turboFrame) return;
 
+    turboFrame.addEventListener('turbo:frame-load', function onLoaded() {
+        turboFrame.removeEventListener('turbo:frame-load', onLoaded);
+        turboFrame.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
     turboFrame.src = url.toString();
+
+    // Fallback: ensure scroll even if event was missed
+    setTimeout(function () {
+        if (turboFrame.innerHTML.trim().length > 0) {
+            turboFrame.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 500);
 }
 
 function initBlueprintPreviews() {
