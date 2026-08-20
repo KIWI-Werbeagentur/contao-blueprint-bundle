@@ -74,3 +74,37 @@
     height: 30px;
     margin-top: -3px;
 }
+
+/* Blueprint loading spinner overlay */
+.bp-spinner-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(2px);
+    border-radius: 4px;
+}
+
+[data-color-scheme="dark"] .bp-spinner-overlay {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.bp-spinner-overlay.is-active {
+    display: flex;
+}
+
+.bp-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border, #ccc);
+    border-top-color: var(--primary, #d4652e);
+    border-radius: 50%;
+    animation: bp-spin 0.6s linear infinite;
+}
+
+@keyframes bp-spin {
+    to { transform: rotate(360deg); }
+}

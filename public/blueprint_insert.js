@@ -10,6 +10,32 @@ let abortController = null;
 let currentPageUrl = null;
 let isNavigating = false;
 let pendingBlueprint = null;
+let loadingCount = 0;
+let spinnerOverlay = null;
+
+function ensureSpinner() {
+    if (spinnerOverlay) return spinnerOverlay;
+    const wrap = document.getElementById('clp-frame-wrap');
+    if (!wrap) return null;
+    spinnerOverlay = document.createElement('div');
+    spinnerOverlay.className = 'bp-spinner-overlay';
+    spinnerOverlay.innerHTML = '<div class="bp-spinner"></div>';
+    wrap.appendChild(spinnerOverlay);
+    return spinnerOverlay;
+}
+
+function showSpinner() {
+    loadingCount++;
+    var el = ensureSpinner();
+    if (el) el.classList.add('is-active');
+}
+
+function hideSpinner() {
+    loadingCount = Math.max(0, loadingCount - 1);
+    if (loadingCount === 0 && spinnerOverlay) {
+        spinnerOverlay.classList.remove('is-active');
+    }
+}
 
 function getCleanUrl(url) {
     try {
@@ -47,11 +73,13 @@ function navigateToPage(clpFrame, targetUrl, signal, callback) {
 
     const gen = ++navigationGeneration;
     isNavigating = true;
+    showSpinner();
 
     function onLoad() {
         if (gen !== navigationGeneration) return;
         clpFrame.removeEventListener('load', onLoad);
         isNavigating = false;
+        hideSpinner();
         currentPageUrl = cleanTarget;
         callback();
     }
