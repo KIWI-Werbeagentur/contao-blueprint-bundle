@@ -2,7 +2,6 @@
 
 use Contao\DataContainer;
 use Contao\DC_Table;
-use Kiwi\Contao\BlueprintsBundle\DataContainer\BlueprintArticleCategory;
 
 $GLOBALS['TL_DCA']['tl_blueprint_article_category'] = [
     'config' => [
@@ -30,11 +29,6 @@ $GLOBALS['TL_DCA']['tl_blueprint_article_category'] = [
         'global_operations' => [
             'new',
             'all',
-            'blueprint_article_preview' => [
-                'href' => 'key=blueprint_article_preview',
-                'attributes' => 'target="_blank"',
-                'button_callback' => [BlueprintArticleCategory::class, 'blueprintPreviewButton']
-            ]
         ]
     ],
 

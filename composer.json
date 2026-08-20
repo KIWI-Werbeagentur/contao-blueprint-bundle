@@ -1,8 +1,8 @@
 {
     "name": "kiwi/contao-blueprints",
     "type": "contao-bundle",
-    "keywords": ["contao", "blueprints", "templates", "article templates", "preview"],
-    "description": "This Contao bundle allows you to create reusable article blueprints with preview when inserting.",
+    "keywords": ["contao", "blueprints", "templates", "article templates"],
+    "description": "This Contao bundle allows you to create reusable article blueprints with a live preview in the sidebar when inserting.",
     "license": "LGPL-3.0-or-later",
     "authors": [
         {
@@ -17,7 +17,8 @@
     "require": {
         "php": "^8.2",
         "contao/core-bundle": "^5.3",
-        "oneup/contao-backend-sortable-list-views": "^1.1.1"
+        "oneup/contao-backend-sortable-list-views": "^1.1.1",
+        "think-digital-agency/contao-live-preview": "^2.3"
     },
     "suggest": {
         "kiwi/contao-cmx": "Recommended for full functionality when used together with the CMX bundle"

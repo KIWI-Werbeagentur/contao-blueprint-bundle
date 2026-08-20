@@ -40,7 +40,7 @@ class Article
         $arrClipboard = $objSession->get('CLIPBOARD');
 
         // Load preview JavaScript (required for Turbo navigation)
-        echo "<script>var strBlueprintPreview = '/preview.php/kiwi/blueprints/article?do=blueprint_article&key=blueprint_article_preview';</script>";
+        echo "<script>var strBlueprintPreview = '/kiwi/blueprints/article';</script>";
         $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/kiwiblueprints/blueprint_insert.js|static';
 
         if (Input::get('key') == 'blueprint_article_insert' || ($arrClipboard['tl_article']['type'] ?? false) == 'blueprint') {
@@ -62,7 +62,7 @@ class Article
     public function addBlueprintArticlePasteButton(\Contao\DataContainer $objDc, array $arrData, string|null $strTable, bool $isCircular, array $arrClipboard, array|null $arrChildren, string|null $strPrev, string|null $strNext)
     {
         $security = System::getContainer()->get('security.helper');
-        if ($strTable != 'tl_article' && !$security->isGranted(ContaoCorePermissions::DC_PREFIX . 'tl_article', new CreateAction('tl_article', ['pid' => $arrData['id'], 'sorting' => $arrData['sorting']]))) {
+        if ($strTable != 'tl_article' && $strTable != 'tl_page' && !$security->isGranted(ContaoCorePermissions::DC_PREFIX . 'tl_article', new CreateAction('tl_article', ['pid' => $arrData['id'], 'sorting' => $arrData['sorting']]))) {
             return;
         }
 
@@ -86,18 +86,62 @@ class Article
 
         $href = Backend::addToUrl('');
 
-        $objPage = PageModel::findById($arrData['pid']);
+        $pageId = null;
+        $articleId = null;
+
+        if ($strTable == 'tl_page') {
+            $pageId = $arrData['id'];
+        } elseif ($strTable == 'tl_article') {
+            $pageId = $arrData['pid'];
+            $articleId = $arrData['id'];
+        } elseif ($strTable == 'tl_content') {
+            $articleId = $arrData['pid'];
+            $objArticle = ArticleModel::findById($articleId);
+            if ($objArticle) {
+                $pageId = $objArticle->pid;
+            }
+        }
+
+        $pageUrl = '/';
+        $objPage = $pageId ? PageModel::findById($pageId) : null;
+
+        if ($objPage) {
+            try {
+                $pageUrl = $objPage->getAbsoluteUrl();
+            } catch (\Throwable $e) {
+                $pageUrl = '/' . ($objPage->alias ?: $pageId) . '/';
+            }
+        }
+
         $intLayout = null !== $objPage ? $objPage->loadDetails()->layout : 0;
+
+        $position = 0;
+        if ($pageId) {
+            $articles = ArticleModel::findPublishedByPidAndColumn($pageId, 'main');
+            if ($articles) {
+                $pos = 0;
+                foreach ($articles as $article) {
+                    $pos++;
+                    if ($article->id == $articleId) {
+                        $position = $pos;
+                        break;
+                    }
+                }
+            }
+        }
 
         return System::getContainer()->get('twig')->render('@KiwiBlueprints/backend/blueprint_article_insert.html.twig', [
             'categories' => $objBlueprintArticleCategoryCollection,
             'record' => $arrData,
             'layout' => $intLayout,
-            'page' => $strTable == 'tl_article' ? $arrData['pid']:$arrData['id'],
+            'page' => $pageId,
+            'pageUrl' => $pageUrl,
+            'position' => $position,
+            'afterArticle' => $articleId,
             'href' => $href,
-            'icon' => $strTable == 'tl_article' ? "bundles/kiwiblueprints/pasteinto.svg" : "bundles/kiwiblueprints/pastenextto.svg",
+            'icon' => $strTable == 'tl_content' ? "bundles/kiwiblueprints/pastenextto.svg" : "bundles/kiwiblueprints/pasteinto.svg",
             'table' => $strTable,
-            'mode' => $strTable == 'tl_article' ? 1 : 2
+            'mode' => $strTable == 'tl_content' ? 2 : 1
         ]);
     }
 

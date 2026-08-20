@@ -1,4 +1,4 @@
-<div class="add_blueprint add_blueprint__wrapper" data-layout="{{ layout ?? 0 }}" data-page="{{ page }}">
+<div class="add_blueprint add_blueprint__wrapper" data-layout="{{ layout ?? 0 }}" data-page="{{ page }}" data-page-url="{{ pageUrl }}">
     <span class="add_blueprint__item">{% if icon %}<img src="{{ icon }}"/>{% endif %}</span>
     <ul class="add_blueprint__item__wrapper_outer">
         <div class="add_blueprint__item__wrapper category">
@@ -9,7 +9,10 @@
                     {% if category.blueprints %}
                         <ul class="add_blueprint__item__wrapper blueprint">
                             {% for blueprint in category.blueprints %}
-                                <li class="add_blueprint__wrapper blueprint__wrapper" data-blueprint-alias="{{ blueprint.alias }}">
+                                <li class="add_blueprint__wrapper blueprint__wrapper"
+                                    data-blueprint-alias="{{ blueprint.alias }}"
+                                    data-position="{{ position }}"
+                                    data-after-article="{{ afterArticle }}">
                                     <a class="add_blueprint__item blueprint__item item" href="{{ href|raw ~ "&do=blueprint_article&mode=1&mode=" ~ mode ~ "&key=blueprint_article_insert&id=" ~ blueprint.id ~ "&pid=" ~ record.id }}">{{ blueprint.title }}</a>
                                 </li>
                             {% endfor %}
@@ -20,4 +23,3 @@
         </div>
     </ul>
 </div>
-

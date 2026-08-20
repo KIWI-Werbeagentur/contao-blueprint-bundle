@@ -8,12 +8,10 @@ services:
     public: true
   Kiwi\Contao\BlueprintsBundle\DataContainer\BlueprintArticle:
     public: true
-  Kiwi\Contao\BlueprintsBundle\DataContainer\BlueprintArticleCategory:
-    public: true
   Kiwi\Contao\BlueprintsBundle\DataContainer\Content:
     public: true
   Kiwi\Contao\BlueprintsBundle\Blueprint:
     public: true
   Kiwi\Contao\BlueprintsBundle\EventListener\CompileArticleListener: ~
   Kiwi\Contao\BlueprintsBundle\EventListener\GetArticlesListener: ~
-  Kiwi\Contao\BlueprintsBundle\EventListener\GetFrontendModuleListener: ~
+  Kiwi\Contao\BlueprintsBundle\EventListener\GeneratePageListener: ~

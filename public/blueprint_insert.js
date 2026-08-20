@@ -1,140 +1,199 @@
-const iframes = `
-    <div class="blueprint_article_preview" data-previews>
-        <div class="blueprint_article_preview__wrapper">
-            <div class="blueprint_article_preview__viewport viewport viewport--desktop" data-type="desktop">
-                <div class="viewport__wrapper">
-                    <iframe></iframe>
-                </div>
-            </div>
-            <div class="blueprint_article_preview__viewport viewport viewport--smartphone" data-type="smartphone">
-                <div class="viewport__wrapper">
-                    <iframe></iframe>
-                </div>
-            </div>
-            <div class="blueprint_article_preview__viewport viewport viewport--tablet" data-type="tablet">
-                <div class="viewport__wrapper">
-                    <iframe></iframe>
-                </div>
-            </div>
-        </div>
-    </div>
-`
+/**
+ * Blueprint Preview Integration mit Contao Live Preview Sidebar
+ * Navigates the CLP iframe to the correct page on hover and
+ * loads blueprint content via Turbo-Frames.
+ */
 
-const iframe = `<iframe class="viewport__content" data-layout="{{ layout }}" data-page="{{ page }}" src="{{ url }}"></iframe>`
-
-let ac = null;
 let hoverGeneration = 0;
+let navigationGeneration = 0;
+let abortController = null;
+let currentPageUrl = null;
+let isNavigating = false;
+let pendingBlueprint = null;
 
-const toggleBueprint = (previewTrigger, intPage)=>{
-    const strBlueprint = previewTrigger.dataset.blueprintAlias
-
-    document.querySelectorAll(`iframe.--active`).forEach(iframe => {
-        iframe.classList.remove("--active")
-    })
-
-    document.querySelectorAll(`iframe[data-page="${intPage}"]`).forEach(iframe => {
-        iframe.classList.add("--active")
-    })
-    window.dispatchEvent(new CustomEvent("blueprint_preview", {detail: strBlueprint}))
+function getCleanUrl(url) {
+    try {
+        const u = new URL(url);
+        u.searchParams.delete('_clp');
+        u.searchParams.delete('_t');
+        return u.toString();
+    } catch {
+        return url;
+    }
 }
 
-function initBlueprintPreviews() {
-    // Abort any previous listeners (prevents duplicates after Turbo navigation)
-    if (ac) ac.abort();
-    ac = new AbortController();
-    const signal = ac.signal;
+function ensureSidebarOpen(clpFrame, callback) {
+    const toggleBtn = document.getElementById('clp-toggle-btn');
+    if (toggleBtn && !document.body.classList.contains('clp-open')) {
+        toggleBtn.click();
+        function onInitialLoad() {
+            clpFrame.removeEventListener('load', onInitialLoad);
+            callback();
+        }
+        clpFrame.addEventListener('load', onInitialLoad);
+    } else {
+        callback();
+    }
+}
 
-    if (!document.querySelector('[data-blueprint-alias]')) {
+function navigateToPage(clpFrame, targetUrl, signal, callback) {
+    const cleanTarget = getCleanUrl(targetUrl);
+    const cleanCurrent = clpFrame.src ? getCleanUrl(clpFrame.src) : '';
+
+    if (cleanTarget === cleanCurrent) {
+        callback();
         return;
     }
 
-    const existing = document.querySelector('[data-previews]');
-    if (existing) {
-        existing.remove();
+    const gen = ++navigationGeneration;
+    isNavigating = true;
+
+    function onLoad() {
+        if (gen !== navigationGeneration) return;
+        clpFrame.removeEventListener('load', onLoad);
+        isNavigating = false;
+        currentPageUrl = cleanTarget;
+        callback();
     }
 
-    const tmp = document.createElement("div")
-    tmp.innerHTML = iframes
-    const main = document.querySelector('main')
-    if (main && main.parentNode) {
-        main.parentNode.append(tmp.firstElementChild)
-    }
-
-    document.querySelectorAll('[data-blueprint-alias]').forEach(previewTrigger => {
-        previewTrigger.addEventListener('mouseenter', () => {
-            const generation = ++hoverGeneration;
-            const intPage = previewTrigger.closest('[data-page]').dataset.page
-            const strAlias = previewTrigger.dataset.blueprintAlias
-            const strSrc = `${strBlueprintPreview}&page=${intPage}&alias=${strAlias}`
-
-            const previews = document.querySelectorAll(`iframe[data-page='${intPage}']`)
-
-            if (!previews.length) {
-                const tmp = document.createElement("div")
-                tmp.innerHTML = iframe
-                    .replace("{{ url }}", strSrc)
-                    .replace("{{ page }}", intPage)
-                const template = tmp.firstElementChild
-
-                const containers = document.querySelectorAll('[data-previews] .viewport__wrapper')
-                containers.forEach(container => {
-                    container.innerHTML = ''
-                    const clone = template.cloneNode(true)
-                    container.appendChild(clone)
-                    clone.addEventListener('load', () => {
-                        if (signal.aborted || generation !== hoverGeneration) return
-                        setTimeout(() => {
-                            if (signal.aborted || generation !== hoverGeneration) return
-                            window.dispatchEvent(new Event("blueprint_insert", {detail: intPage}))
-                            setTimeout(() => {
-                                if (!signal.aborted && generation === hoverGeneration) {
-                                    toggleBueprint(previewTrigger, intPage)
-                                }
-                            }, 10)
-                        }, 100)
-                    }, {capture: true, signal})
-                })
-            } else {
-                let loaded = 0
-                previews.forEach(preview => {
-                    preview.src = strSrc
-                    preview.addEventListener('load', () => {
-                        if (signal.aborted || generation !== hoverGeneration) return
-                        loaded++
-                        if (loaded < previews.length) return
-                        setTimeout(() => {
-                            if (signal.aborted || generation !== hoverGeneration) return
-                            window.dispatchEvent(new Event("blueprint_insert", {detail: intPage}))
-                            setTimeout(() => {
-                                if (!signal.aborted && generation === hoverGeneration) {
-                                    toggleBueprint(previewTrigger, intPage)
-                                }
-                            }, 10)
-                        }, 100)
-                    }, {once: true, signal})
-                })
-            }
-        }, {signal})
-    })
+    clpFrame.addEventListener('load', onLoad);
+    clpFrame.src = targetUrl + '?_clp=1';
 }
 
-// Initialize on page load
+function loadBlueprintContent(clpFrame, pageId, alias, afterArticle, framePosition) {
+    const url = new URL(window.strBlueprintPreview, window.location.origin);
+    url.searchParams.set('page', pageId);
+    url.searchParams.set('alias', alias);
+    if (afterArticle !== '0') {
+        url.searchParams.set('afterArticle', afterArticle);
+    }
+
+    const frameDoc = clpFrame.contentDocument;
+    if (!frameDoc) return;
+
+    const frameId = 'bp-insert-' + pageId + '-' + framePosition;
+    const turboFrame = frameDoc.getElementById(frameId);
+    if (!turboFrame) return;
+
+    turboFrame.src = url.toString();
+}
+
+function initBlueprintPreviews() {
+    if (abortController) {
+        abortController.abort();
+    }
+    abortController = new AbortController();
+    const signal = abortController.signal;
+
+    const clpFrame = document.getElementById('clp-frame');
+    if (!clpFrame) {
+        console.debug('Contao Live Preview not available - Blueprint preview disabled');
+        return;
+    }
+
+    if (!currentPageUrl && clpFrame.src) {
+        currentPageUrl = getCleanUrl(clpFrame.src);
+    }
+
+    // Paste icon hover — navigate to that page
+    const wrappers = document.querySelectorAll('.add_blueprint__wrapper[data-page-url]');
+    wrappers.forEach(function (wrapper) {
+        wrapper.addEventListener('mouseenter', function () {
+            const pageUrl = wrapper.dataset.pageUrl;
+            const pageId = wrapper.dataset.page;
+            if (!pageUrl) return;
+
+            var currentGen = ++hoverGeneration;
+
+            function doNavigate() {
+                if (hoverGeneration !== currentGen) return;
+
+                navigateToPage(clpFrame, pageUrl, signal, function () {
+                    if (hoverGeneration !== currentGen) return;
+
+                    if (pendingBlueprint && pendingBlueprint.pageId === pageId) {
+                        var pb = pendingBlueprint;
+                        pendingBlueprint = null;
+                        loadBlueprintContent(clpFrame, pb.pageId, pb.alias, pb.afterArticle, pb.framePosition);
+                    }
+                });
+            }
+
+            ensureSidebarOpen(clpFrame, doNavigate);
+        }, { signal: signal });
+    });
+
+    // Blueprint name hover — load content into turbo-frame
+    var triggers = document.querySelectorAll('[data-blueprint-alias]');
+    triggers.forEach(function (trigger) {
+        trigger.addEventListener('mouseenter', function () {
+            var currentGen = ++hoverGeneration;
+
+            var wrapper = trigger.closest('[data-page]');
+            if (!wrapper) return;
+
+            var pageId = wrapper.dataset.page;
+            var alias = trigger.dataset.blueprintAlias;
+            var afterArticle = trigger.dataset.afterArticle || '0';
+            var framePosition = trigger.dataset.position || '0';
+            var pageUrl = wrapper.dataset.pageUrl;
+
+            function doLoad() {
+                if (hoverGeneration !== currentGen) return;
+                loadBlueprintContent(clpFrame, pageId, alias, afterArticle, framePosition);
+            }
+
+            function doNavigateThenLoad() {
+                if (hoverGeneration !== currentGen) return;
+
+                if (pageUrl) {
+                    var cleanTarget = getCleanUrl(pageUrl);
+                    var cleanCurrent = clpFrame.src ? getCleanUrl(clpFrame.src) : '';
+
+                    if (cleanTarget !== cleanCurrent) {
+                        pendingBlueprint = {
+                            pageId: pageId,
+                            alias: alias,
+                            afterArticle: afterArticle,
+                            framePosition: framePosition
+                        };
+                        navigateToPage(clpFrame, pageUrl, signal, function () {
+                            if (hoverGeneration !== currentGen) return;
+                            var pb = pendingBlueprint;
+                            if (pb && pb.pageId === pageId) {
+                                pendingBlueprint = null;
+                                loadBlueprintContent(clpFrame, pb.pageId, pb.alias, pb.afterArticle, pb.framePosition);
+                            }
+                        });
+                        return;
+                    }
+                }
+
+                doLoad();
+            }
+
+            if (isNavigating) {
+                pendingBlueprint = {
+                    pageId: pageId,
+                    alias: alias,
+                    afterArticle: afterArticle,
+                    framePosition: framePosition
+                };
+                return;
+            }
+
+            ensureSidebarOpen(clpFrame, doNavigateThenLoad);
+        }, { signal: signal });
+
+        // No mouseleave handler — preview persists
+    });
+}
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initBlueprintPreviews);
 } else {
     initBlueprintPreviews();
 }
 
-// Reinitialize on Turbo navigation
 document.addEventListener('turbo:load', initBlueprintPreviews);
 document.addEventListener('turbo:render', initBlueprintPreviews);
-
-window.addEventListener("load", () => {
-    window.dispatchEvent(new Event("blueprint_insert"))
-})
-
-window.addEventListener("blueprint_preview_resize", (e) => {
-    document.querySelectorAll(".blueprint_article_preview__item").forEach(preview => {
-        preview.style.setProperty('height', `${e.detail.height}px`)
-    })
-})

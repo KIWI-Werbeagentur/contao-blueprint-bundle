@@ -2,8 +2,8 @@
 
 namespace Kiwi\Contao\BlueprintsBundle\EventListener;
 
-use Kiwi\Contao\BlueprintsBundle\Controller\FrontendModule\BlueprintArticleController;
-use Kiwi\Contao\BlueprintsBundle\Model\BlueprintArticleModel;
+use Contao\ArticleModel;
+use Contao\Controller;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsHook;
 use Contao\Input;
 
@@ -11,35 +11,36 @@ use Contao\Input;
 class GetArticlesListener
 {
     /*
-     * Load Articles from tl_blueprint_article in Blueprint-Preview mode
+     * Insert Turbo-Frames between regular articles when CLP mode is active
      * */
     public function __invoke(int $pageId, string $column): string|null
     {
-        global $objPage;
-        if ($objPage->isBlueprintPreview && $column == 'main') {
-            $alias = Input::get('alias');
-
-            if ($alias) {
-                $objBlueprintArticle = BlueprintArticleModel::findOneBy('alias', $alias);
-                if ($objBlueprintArticle) {
-                    $objBlueprintArticleCollection = [$objBlueprintArticle];
-                } else {
-                    return null;
-                }
-            } else {
-                $objBlueprintArticleCollection = BlueprintArticleModel::findAll();
-            }
-
-            if (!$objBlueprintArticleCollection) return null;
-
-            $arrBlueprintArticles = [];
-            foreach ($objBlueprintArticleCollection as $objBlueprintArticle) {
-                $objBlueprintArticle->cssID = serialize([$objBlueprintArticle->alias]);
-                $arrBlueprintArticles[] = (new BlueprintArticleController($objBlueprintArticle))->generate();
-            }
-
-            return implode("", $arrBlueprintArticles);
+        if (!Input::get('_clp') || $column !== 'main') {
+            return null;
         }
-        return null;
+
+        global $objPage;
+        if (!$objPage) {
+            return null;
+        }
+
+        $articles = ArticleModel::findPublishedByPidAndColumn($pageId, $column);
+
+        if (!$articles) {
+            return sprintf('<turbo-frame id="bp-insert-%d-0"></turbo-frame>', $pageId);
+        }
+
+        $html = sprintf('<turbo-frame id="bp-insert-%d-0"></turbo-frame>', $pageId);
+        $position = 0;
+
+        foreach ($articles as $article) {
+            $article->cssID = unserialize($article->cssID);
+            $html .= Controller::getArticle($article);
+
+            $position++;
+            $html .= sprintf('<turbo-frame id="bp-insert-%d-%d"></turbo-frame>', $pageId, $position);
+        }
+
+        return $html;
     }
 }
