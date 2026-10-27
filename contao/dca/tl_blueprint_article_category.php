@@ -33,6 +33,7 @@ $GLOBALS['TL_DCA']['tl_blueprint_article_category'] = [
             'blueprint_article_preview' => [
                 'href' => 'key=blueprint_article_preview',
                 'attributes' => 'target="_blank"',
+                'primary' => true,
                 'button_callback' => [BlueprintArticleCategory::class, 'blueprintPreviewButton']
             ]
         ]
