@@ -6,6 +6,7 @@ use Contao\ArticleModel;
 use Contao\ContentModel;
 use Contao\CoreBundle\Security\ContaoCorePermissions;
 use Contao\CoreBundle\Security\DataContainer\CreateAction;
+use Contao\LayoutModel;
 use Contao\PageModel;
 use Contao\StringUtil;
 use Kiwi\Contao\BlueprintsBundle\Model\BlueprintArticleCategoryModel;
