@@ -1,3 +1,10 @@
+{#
+    Variables: categories (each with its published blueprints, each blueprint
+    with its insert link in blueprint.href), layout, page, icon, table
+
+    Deprecated, only passed for overrides that still build the insert link
+    themselves (use blueprint.href instead): href, mode, record
+#}
 <div class="add_blueprint add_blueprint__wrapper" data-layout="{{ layout ?? 0 }}" data-page="{{ page }}">
     <span class="add_blueprint__item">{% if icon %}<img src="{{ icon }}"/>{% endif %}</span>
     <ul class="add_blueprint__item__wrapper_outer">
@@ -10,7 +17,7 @@
                         <ul class="add_blueprint__item__wrapper blueprint">
                             {% for blueprint in category.blueprints %}
                                 <li class="add_blueprint__wrapper blueprint__wrapper" data-blueprint-alias="{{ blueprint.alias }}">
-                                    <a class="add_blueprint__item blueprint__item item" href="{{ (href|replace({'&amp;': '&'}) ~ "&do=blueprint_article&mode=1&mode=" ~ mode ~ "&key=blueprint_article_insert&id=" ~ blueprint.id ~ "&pid=" ~ record.id) }}" data-turbo-prefetch="false">{{ blueprint.title }}</a>
+                                    <a class="add_blueprint__item blueprint__item item" href="{{ blueprint.href|raw }}" data-turbo-prefetch="false">{{ blueprint.title }}</a>
                                 </li>
                             {% endfor %}
                         </ul>
