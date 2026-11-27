@@ -110,12 +110,14 @@ class Article
 
         return System::getContainer()->get('twig')->render('@KiwiBlueprints/backend/blueprint_article_insert.html.twig', [
             'categories' => $objBlueprintArticleCategoryCollection,
-            'record' => $arrData,
             'layout' => $intLayout,
             'page' => $strTable == 'tl_article' ? $arrData['pid']:$arrData['id'],
             'icon' => $strTable == 'tl_article' ? "bundles/kiwiblueprints/pasteinto.svg" : "bundles/kiwiblueprints/pastenextto.svg",
             'table' => $strTable,
-            'mode' => $strTable == 'tl_article' ? 1 : 2
+            // Deprecated, only for template overrides that still build the insert link themselves
+            'href' => Backend::addToUrl(''),
+            'mode' => $strTable == 'tl_article' ? 1 : 2,
+            'record' => $arrData,
         ]);
     }
 
