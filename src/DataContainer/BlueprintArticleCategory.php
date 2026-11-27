@@ -4,6 +4,8 @@ namespace Kiwi\Contao\BlueprintsBundle\DataContainer;
 
 use Contao\Backend;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsCallback;
+use Contao\Database;
+use Contao\DataContainer;
 use Contao\LayoutModel;
 use Contao\PageModel;
 use Contao\System;
@@ -28,5 +30,24 @@ class BlueprintArticleCategory extends Backend
             'attributes' => $strAttributes,
             'table' => $strTable,
         ]);
+    }
+
+    #[AsCallback(table: 'tl_blueprint_article_category', target: 'fields.alias.save')]
+    public function generateAlias($varValue, DataContainer $objDca)
+    {
+        $aliasExists = static function (string $alias) use ($objDca): bool {
+            return Database::getInstance()->prepare("SELECT id FROM tl_blueprint_article_category WHERE alias=? AND id!=?")->execute($alias, $objDca->id)->numRows > 0;
+        };
+
+        // Generate an alias if there is none
+        if (!$varValue) {
+            $varValue = System::getContainer()->get('contao.slug')->generate((string)$objDca->activeRecord->title, [], $aliasExists);
+        } elseif (preg_match('/^[1-9]\d*$/', $varValue)) {
+            throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasNumeric'], $varValue));
+        } elseif ($aliasExists($varValue)) {
+            throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['aliasExists'], $varValue));
+        }
+
+        return $varValue;
     }
 }
