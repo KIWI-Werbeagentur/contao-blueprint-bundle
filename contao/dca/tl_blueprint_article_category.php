@@ -60,9 +60,6 @@ $GLOBALS['TL_DCA']['tl_blueprint_article_category'] = [
             'inputType' => 'text',
             'search' => true,
             'eval' => ['rgxp' => 'alias', 'doNotCopy' => true, 'maxlength' => 255, 'tl_class' => 'w50'],
-            'save_callback' => [
-                [\Kiwi\Contao\BlueprintsBundle\DataContainer\Article::class, 'generateAlias']
-            ],
             'sql' => "varchar(255) BINARY NOT NULL default ''"
         ],
         'published' => [
